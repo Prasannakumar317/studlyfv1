@@ -77,8 +77,8 @@ export default function DocumentsPage() {
                     <p className="text-xs text-gray-500">{new Date(active.created_at).toLocaleString()}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={copy} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 flex items-center gap-1"><Copy className="w-3.5 h-3.5" /> Copy</button>
-                    <button onClick={download} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 flex items-center gap-1"><Download className="w-3.5 h-3.5" /> .json</button>
+                    <button onClick={copy} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 flex items-center gap-1" data-testid="output-copy"><Copy className="w-3.5 h-3.5" /> Copy</button>
+                    <button onClick={download} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-gray-200 flex items-center gap-1" data-testid="output-download"><Download className="w-3.5 h-3.5" /> .json</button>
                   </div>
                 </div>
                 <GenerationView kind={active.kind} data={active.data} />
