@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { motion } from "framer-motion";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../ui/dialog";
-import { Sparkles, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Sparkles, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import api from "../../lib/api";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+const startGoogleAuth = () => {
+  const redirectUrl = window.location.origin + "/workspace";
+  window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+};
 
 export default function SignupDialog({ open, onOpenChange }) {
   const [form, setForm] = useState({ name: "", email: "", company: "", role: "Founder" });
@@ -16,7 +20,7 @@ export default function SignupDialog({ open, onOpenChange }) {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(`${API}/signup`, { ...form, source: "landing-get-started" });
+      await api.post("/signup", { ...form, source: "landing-get-started" });
       setDone(true);
       toast.success("Welcome to STUDLYF AI! We'll be in touch shortly.");
     } catch (err) {
@@ -27,13 +31,13 @@ export default function SignupDialog({ open, onOpenChange }) {
     }
   };
 
-  const handleChange = () => {
+  const handleClose = () => {
     onOpenChange(false);
     setTimeout(() => { setDone(false); setForm({ name: "", email: "", company: "", role: "Founder" }); }, 300);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) handleChange(); else onOpenChange(true); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); else onOpenChange(true); }}>
       <DialogContent className="sm:max-w-md rounded-[24px] border-gray-100 p-0 overflow-hidden" data-testid="signup-dialog">
         {!done ? (
           <>
@@ -47,10 +51,29 @@ export default function SignupDialog({ open, onOpenChange }) {
                 <DialogTitle className="font-display text-2xl md:text-3xl font-semibold tracking-tight mt-3">
                   Start building your startup with AI.
                 </DialogTitle>
-                <DialogDescription className="text-gray-600">
-                  Create your free workspace in seconds. No credit card.
+                <DialogDescription>
+                  Continue with Google to instantly open your workspace — or drop your email to stay in the loop.
                 </DialogDescription>
               </DialogHeader>
+            </div>
+
+            <div className="px-7 pb-2">
+              <button
+                onClick={startGoogleAuth}
+                className="w-full rounded-full py-3 text-sm font-semibold bg-white border border-gray-200 hover:border-gray-300 hover:shadow-sm flex items-center justify-center gap-3 transition"
+                data-testid="signup-google"
+              >
+                <svg viewBox="0 0 24 24" className="w-4 h-4" aria-hidden>
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.55c2.08-1.92 3.29-4.74 3.29-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.55-2.76c-.98.66-2.23 1.06-3.73 1.06-2.87 0-5.3-1.94-6.17-4.54H2.18v2.85A11 11 0 0 0 12 23z"/>
+                  <path fill="#FBBC05" d="M5.83 14.1A6.6 6.6 0 0 1 5.5 12c0-.73.13-1.43.33-2.1V7.05H2.18A11 11 0 0 0 1 12c0 1.77.42 3.44 1.18 4.95l3.65-2.85z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.07.56 4.21 1.65l3.15-3.15C17.45 2.1 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.05L5.83 9.9C6.7 7.3 9.13 5.38 12 5.38z"/>
+                </svg>
+                Continue with Google
+              </button>
+              <div className="my-4 flex items-center gap-3 text-[11px] uppercase tracking-widest text-gray-400 font-semibold">
+                <span className="flex-1 h-px bg-gray-100" /> or email me <span className="flex-1 h-px bg-gray-100" />
+              </div>
             </div>
 
             <form onSubmit={submit} className="px-7 pb-7 space-y-3" data-testid="signup-form">
@@ -86,7 +109,7 @@ export default function SignupDialog({ open, onOpenChange }) {
                 className="glow-button w-full rounded-full py-3.5 text-sm font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70"
                 data-testid="signup-submit"
               >
-                {loading ? "Creating workspace..." : <>Create my workspace <ArrowRight className="w-4 h-4" /></>}
+                {loading ? "Creating workspace..." : "Get the briefing"}
               </button>
               <p className="text-[11px] text-gray-500 text-center">By continuing you agree to our Terms and Privacy.</p>
             </form>
@@ -101,12 +124,15 @@ export default function SignupDialog({ open, onOpenChange }) {
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <h3 className="mt-5 font-display text-2xl font-semibold">You&apos;re on the list!</h3>
-            <p className="mt-2 text-gray-600 text-sm">We&apos;ll send you an invite to your STUDLYF AI workspace soon.</p>
-            <button
-              onClick={handleChange}
-              className="mt-6 glow-button rounded-full px-6 py-2.5 text-sm font-semibold"
-              data-testid="signup-success-close"
-            >Continue exploring</button>
+            <p className="mt-2 text-gray-600 text-sm">Continue with Google any time to open your workspace.</p>
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button onClick={startGoogleAuth} className="glow-button rounded-full px-5 py-2.5 text-sm font-semibold" data-testid="signup-success-google">
+                Continue with Google
+              </button>
+              <button onClick={handleClose} className="rounded-full px-5 py-2.5 text-sm font-semibold border border-gray-200" data-testid="signup-success-close">
+                Keep exploring
+              </button>
+            </div>
           </motion.div>
         )}
       </DialogContent>

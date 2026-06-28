@@ -1,11 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, LayoutDashboard } from "lucide-react";
 import { LOGO_URL, NAV_LINKS } from "../../data/landing";
+import { useAuth } from "../../lib/auth";
+import { useNavigate } from "react-router-dom";
+
+// REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
+const startGoogleAuth = () => {
+  const redirectUrl = window.location.origin + "/workspace";
+  window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+};
 
 export default function Navbar({ onGetStarted }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -47,19 +57,32 @@ export default function Navbar({ onGetStarted }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <button
-            className="hidden md:inline-flex text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2"
-            data-testid="nav-login"
-          >
-            Log in
-          </button>
-          <button
-            onClick={onGetStarted}
-            className="glow-button rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2"
-            data-testid="nav-get-started"
-          >
-            <Sparkles className="w-4 h-4" /> Get Started
-          </button>
+          {user ? (
+            <button
+              onClick={() => navigate("/workspace")}
+              className="glow-button rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2"
+              data-testid="nav-workspace"
+            >
+              <LayoutDashboard className="w-4 h-4" /> Workspace
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={startGoogleAuth}
+                className="hidden md:inline-flex text-sm font-medium text-gray-700 hover:text-gray-900 px-4 py-2"
+                data-testid="nav-login"
+              >
+                Log in
+              </button>
+              <button
+                onClick={onGetStarted}
+                className="glow-button rounded-full px-5 py-2.5 text-sm font-semibold flex items-center gap-2"
+                data-testid="nav-get-started"
+              >
+                <Sparkles className="w-4 h-4" /> Get Started
+              </button>
+            </>
+          )}
           <button
             onClick={() => setOpen((s) => !s)}
             className="lg:hidden p-2 rounded-full glass"

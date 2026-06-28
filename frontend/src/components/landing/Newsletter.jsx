@@ -1,21 +1,35 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, ArrowRight } from "lucide-react";
+import { Mail, ArrowRight, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
+import api from "../../lib/api";
 
 export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    setTimeout(() => {
-      toast.success("You're in! Check your inbox for a welcome from STUDLYF AI.");
+    try {
+      const res = await api.post("/newsletter", { email, source: "landing-newsletter" });
+      if (res.data?.already_subscribed) {
+        toast.success("You're already subscribed — see you on Friday!");
+      } else if (res.data?.email_sent) {
+        toast.success("You're in! Check your inbox for your welcome email.");
+      } else {
+        toast.success("You're in! We'll be in touch soon.");
+      }
       setEmail("");
+      setDone(true);
+      setTimeout(() => setDone(false), 4000);
+    } catch (e) {
+      toast.error("Could not subscribe — please try again.");
+    } finally {
       setLoading(false);
-    }, 600);
+    }
   };
 
   return (
@@ -48,21 +62,17 @@ export default function Newsletter() {
 
             <form onSubmit={submit} className="flex flex-col sm:flex-row gap-3" data-testid="newsletter-form">
               <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@startup.com"
                 className="flex-1 px-5 py-4 rounded-full bg-white border border-gray-200 focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/20 text-sm"
                 data-testid="newsletter-email"
               />
               <button
-                type="submit"
-                disabled={loading}
+                type="submit" disabled={loading}
                 className="glow-button rounded-full px-7 py-4 text-sm font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-70"
                 data-testid="newsletter-submit"
               >
-                {loading ? "Sending..." : <>Subscribe <ArrowRight className="w-4 h-4" /></>}
+                {loading ? "Sending..." : done ? <><CheckCircle2 className="w-4 h-4" /> Subscribed</> : <>Subscribe <ArrowRight className="w-4 h-4" /></>}
               </button>
             </form>
           </div>

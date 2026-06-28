@@ -1,54 +1,116 @@
-import React, { useState } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Toaster } from "./components/ui/sonner";
-import Navbar from "./components/landing/Navbar";
-import Hero from "./components/landing/Hero";
-import TrustedBy from "./components/landing/TrustedBy";
-import Features from "./components/landing/Features";
-import Solutions from "./components/landing/Solutions";
-import Workflow from "./components/landing/Workflow";
-import Agents from "./components/landing/Agents";
-import DashboardPreview from "./components/landing/DashboardPreview";
-import Metrics from "./components/landing/Metrics";
-import Testimonials from "./components/landing/Testimonials";
-import Pricing from "./components/landing/Pricing";
-import FAQ from "./components/landing/FAQ";
-import Blog from "./components/landing/Blog";
-import Newsletter from "./components/landing/Newsletter";
-import Footer from "./components/landing/Footer";
-import ChatWidget from "./components/landing/ChatWidget";
-import SignupDialog from "./components/landing/SignupDialog";
+import { AuthProvider } from "./lib/auth";
+import { ProjectsProvider } from "./lib/projects";
+import ProtectedRoute from "./components/ProtectedRoute";
+import WorkspaceShell from "./components/workspace/WorkspaceShell";
+
+import LandingPage from "./pages/LandingPage";
+import AuthCallback from "./pages/AuthCallback";
+import ProjectsPage from "./pages/ProjectsPage";
+import StrategyPage from "./pages/StrategyPage";
+import MarketingPage from "./pages/MarketingPage";
+import FundingPage from "./pages/FundingPage";
+import DocumentsPage from "./pages/DocumentsPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
+import SettingsPage from "./pages/SettingsPage";
+
 import "./App.css";
 
-function App() {
-  const [signupOpen, setSignupOpen] = useState(false);
-  const openSignup = () => setSignupOpen(true);
-
-  const watchDemo = () => {
-    document.getElementById("workflow")?.scrollIntoView({ behavior: "smooth" });
-  };
-
+function AppRouter() {
+  const location = useLocation();
+  // Synchronous check for session_id BEFORE normal routing — prevents race conditions
+  if (location.hash?.includes("session_id=")) {
+    return <AuthCallback />;
+  }
   return (
-    <div className="App relative bg-white text-gray-900 overflow-x-hidden" data-testid="landing-page">
-      <Navbar onGetStarted={openSignup} />
-      <main>
-        <Hero onGetStarted={openSignup} onWatchDemo={watchDemo} />
-        <TrustedBy />
-        <Features />
-        <Solutions />
-        <Workflow />
-        <Agents />
-        <DashboardPreview />
-        <Metrics />
-        <Testimonials />
-        <Pricing onSelect={openSignup} />
-        <Blog />
-        <FAQ />
-        <Newsletter />
-      </main>
-      <Footer />
-      <ChatWidget />
-      <SignupDialog open={signupOpen} onOpenChange={setSignupOpen} />
-      <Toaster position="bottom-center" richColors />
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/workspace"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><ProjectsPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/strategy"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><StrategyPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/marketing"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><MarketingPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/funding"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><FundingPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/documents"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><DocumentsPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/analytics"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><AnalyticsPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/workspace/settings"
+        element={
+          <ProtectedRoute>
+            <ProjectsProvider>
+              <WorkspaceShell><SettingsPage /></WorkspaceShell>
+            </ProjectsProvider>
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRouter />
+          <Toaster position="bottom-center" richColors />
+        </AuthProvider>
+      </BrowserRouter>
     </div>
   );
 }

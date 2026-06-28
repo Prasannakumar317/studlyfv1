@@ -5,16 +5,20 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import uuid
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional
-import uuid
 from datetime import datetime, timezone
-
-from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
+
+from auth import build_auth_router
+from workspace import build_workspace_router
+from newsletter import build_newsletter_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -27,18 +31,7 @@ app = FastAPI(title="STUDLYF AI API")
 api_router = APIRouter(prefix="/api")
 
 
-# ---------- Models ----------
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-
-
-class StatusCheckCreate(BaseModel):
-    client_name: str
-
-
+# ---------- Public models ----------
 class SignupCreate(BaseModel):
     name: Optional[str] = None
     email: EmailStr
@@ -63,24 +56,6 @@ class ChatRequest(BaseModel):
 @api_router.get("/")
 async def root():
     return {"message": "STUDLYF AI API live"}
-
-
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_obj = StatusCheck(**input.model_dump())
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    await db.status_checks.insert_one(doc)
-    return status_obj
-
-
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    items = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    for c in items:
-        if isinstance(c['timestamp'], str):
-            c['timestamp'] = datetime.fromisoformat(c['timestamp'])
-    return items
 
 
 @api_router.post("/signup", response_model=SignupOut)
@@ -122,39 +97,8 @@ SYSTEM_PROMPT = (
 )
 
 
-@api_router.post("/chat/stream")
-async def chat_stream(req: ChatRequest):
-    if not EMERGENT_LLM_KEY:
-        raise HTTPException(status_code=500, detail="LLM key not configured")
-    session_id = req.session_id or str(uuid.uuid4())
-
-    async def event_gen():
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=session_id,
-            system_message=SYSTEM_PROMPT,
-        ).with_model("gemini", "gemini-3-flash-preview")
-        try:
-            async for ev in chat.stream_message(UserMessage(text=req.message)):
-                if isinstance(ev, TextDelta):
-                    yield f"data: {ev.content}\n\n"
-                elif isinstance(ev, StreamDone):
-                    yield "data: [DONE]\n\n"
-                    break
-        except Exception as e:
-            logger.exception("Chat stream failed")
-            yield f"data: [ERROR] {str(e)}\n\n"
-
-    return StreamingResponse(
-        event_gen(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
-    )
-
-
 @api_router.post("/chat")
 async def chat_simple(req: ChatRequest):
-    """Non-streaming fallback used by the landing-page widget."""
     if not EMERGENT_LLM_KEY:
         raise HTTPException(status_code=500, detail="LLM key not configured")
     session_id = req.session_id or str(uuid.uuid4())
@@ -163,7 +107,6 @@ async def chat_simple(req: ChatRequest):
         session_id=session_id,
         system_message=SYSTEM_PROMPT,
     ).with_model("gemini", "gemini-3-flash-preview")
-
     full = ""
     try:
         async for ev in chat.stream_message(UserMessage(text=req.message)):
@@ -178,6 +121,19 @@ async def chat_simple(req: ChatRequest):
 
 
 app.include_router(api_router)
+
+# Auth router (prefix /api/auth)
+auth_router, get_user_from_request = build_auth_router(db)
+app.include_router(auth_router)
+
+# Workspace router (prefix /api/workspace)
+workspace_router = build_workspace_router(db, get_user_from_request)
+app.include_router(workspace_router)
+
+# Newsletter router (prefix /api/newsletter)
+newsletter_router = build_newsletter_router(db)
+app.include_router(newsletter_router)
+
 
 app.add_middleware(
     CORSMiddleware,
