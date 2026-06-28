@@ -1,5 +1,6 @@
 import React from "react";
-import { Dialog, DialogContent } from "../ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "../ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { motion } from "framer-motion";
 import { Play, Sparkles, Bot, TrendingUp, Megaphone, PiggyBank } from "lucide-react";
 
@@ -29,6 +30,10 @@ export default function VideoModal({ open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl rounded-[24px] border-gray-100 p-0 overflow-hidden" data-testid="video-modal">
+        <VisuallyHidden.Root>
+          <DialogTitle>STUDLYF AI demo</DialogTitle>
+          <DialogDescription>An animated preview of the STUDLYF AI platform.</DialogDescription>
+        </VisuallyHidden.Root>
         <div className="aspect-video w-full bg-black relative overflow-hidden">
           {DEMO_URL ? (
             <video

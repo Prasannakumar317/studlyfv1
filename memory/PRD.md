@@ -1,61 +1,71 @@
-# STUDLYF AI — Landing Page PRD
+# STUDLYF AI — PRD
 
 ## Original Problem Statement
-Build a premium SaaS landing page for **STUDLYF AI** — "The Complete AI Business Growth Platform" — that helps founders, students, agencies, incubators and investors transform ideas into successful businesses using AI-powered strategy, market intelligence, branding, marketing and investor tools.
+Premium SaaS landing page + functional workspace for **STUDLYF AI** — "The Complete AI Business Growth Platform" — helping founders, students, agencies, incubators and investors transform ideas into businesses with AI strategy, marketing, branding and investor tools.
 
 ## Architecture
-- **Frontend**: React 19 + CRA + TailwindCSS + Framer Motion + shadcn/ui + lucide-react + react-icons
-- **Backend**: FastAPI + Motor (MongoDB)
-- **AI**: Emergent LLM Key → Gemini 3 Flash via `emergentintegrations` (chat widget)
-- **Storage**: MongoDB — `signups` collection (Get Started flow)
+- **Frontend**: React 19 + CRA + TailwindCSS + Framer Motion + shadcn/ui + lucide-react + react-icons + react-markdown + react-router-dom
+- **Backend**: FastAPI + Motor (MongoDB), modular routers (auth, workspace, newsletter)
+- **AI**: Emergent LLM Key → Gemini 3 Flash via `emergentintegrations`
+- **Email**: Resend (test mode — only verified inbox `24r01a67b6@cmrithyderabad.edu.in` actually receives mail)
+- **Auth**: Emergent-managed Google OAuth (httpOnly cookie + Bearer fallback)
+- **MongoDB collections**: `users`, `user_sessions`, `signups`, `newsletter`, `projects`, `generations`, `status_checks`
 
 ## User Personas
-1. **Founders / Startup teams** — primary CTA path
-2. **Students & Pre-Incubators** — education vertical
-3. **Incubators / Accelerators / Mentors** — institutional buyers
-4. **Agencies** — service providers
-5. **Investors / VCs** — diligence vertical
+1. Founders / Startup teams
+2. Students & Pre-Incubators
+3. Incubators / Accelerators / Mentors
+4. Agencies
+5. Investors / VCs
 
-## Core Requirements (static)
-- Light theme only · white background · gradient accents (purple→pink→orange)
-- Glassmorphism cards · 24px radius · Apple-inspired minimalism
-- Framer Motion animations everywhere · responsive mobile-first
-- All interactive elements include `data-testid`
+## What's Implemented
 
-## What's Implemented (2026-06-28)
-- Sticky Navbar (transparent → glass on scroll) with mobile menu
-- Hero with animated AI dashboard mock (progress bars, agents, live activity, AI chat preview, floating cards)
-- TrustedBy infinite marquee with brand icons
-- 12-card Platform Features bento grid
-- 6-card Solutions grid (Startups, Pre-Incubators, Incubators, Mentors, Agencies, Investors/VCs)
-- 9-step AI Workflow timeline (animated gradient connector)
-- 10 AI Agents grid with pulsing avatars
-- Interactive Dashboard Preview (sidebar / center / right panels, animated SVG chart)
-- Animated Metrics counters on gradient banner
-- Testimonials carousel with dots
-- Pricing (Starter / Pro / Business / Enterprise) with monthly/yearly toggle
-- FAQ shadcn accordion (6 items)
-- Blog preview (3 cards)
-- Newsletter (mock success toast)
-- Footer with social + 4 link columns
-- Floating AI Chat widget (Gemini 3 Flash, full conversation UI)
-- Signup Dialog (POST `/api/signup` → MongoDB, idempotent on email)
+### Phase 1 — Landing (2026-06-28)
+- Sticky glass Navbar with Login + Get Started (Login routes to Workspace if authenticated)
+- Hero with animated AI dashboard mock
+- TrustedBy marquee, 12 Features bento, 6 Solutions cards
+- 9-step animated Workflow timeline
+- 10 AI Agents grid
+- Interactive Dashboard preview, animated Metrics counters
+- Testimonials carousel, Pricing (monthly/yearly), FAQ accordion
+- Blog (3 cards), Newsletter, Footer
+- Floating AI chat widget (Gemini 3 Flash via `/api/chat`)
+- Signup dialog (Continue with Google + email capture)
+
+### Phase 2 — Auth + Workspace + Modules (2026-06-28)
+- **Watch Demo video modal** — animated Framer Motion storyboard (real MP4 swappable via `REACT_APP_DEMO_VIDEO_URL`)
+- **Newsletter** persists to MongoDB + sends Resend welcome email (test mode caveat documented)
+- **Emergent Google Auth**: `/auth/v1/env/oauth/session-data` exchange → httpOnly cookie + Bearer fallback; AuthCallback at URL fragment `#session_id=`, ProtectedRoute, AuthProvider context
+- **Demo project auto-seeded** ("Lumen Labs") on first login
+- **Workspace shell** at `/workspace` with sidebar: Projects · Strategy · Marketing · Funding · Documents · Analytics · Settings
+- **Projects CRUD** with new-project dialog, switching via global ProjectsProvider + ProjectPicker dropdown
+- **Generation modules** — 10 AI tools driven by Gemini 3 Flash, all saving to `db.generations`:
+  - Strategy: SWOT, Business Model Canvas, GTM, Customer Personas, Competitor Analysis
+  - Marketing: 1-Page Marketing Plan, Brand Strategy, Customer Personas
+  - Funding: 1-Min Pitch, Pitch Deck (14 slides), VC Score
+- **Output viewer**: Markdown render, Copy + Download .md + Delete
+- **Documents** library page with search
+- **Analytics** page with counters and per-tool usage bars
+- **Settings** page with logout
 
 ## Backend Endpoints
-- `GET /api/` — health
-- `POST /api/signup` — email capture, idempotent
-- `POST /api/chat` — Gemini-powered chat (non-streaming)
-- `POST /api/chat/stream` — SSE streaming variant (available, not used by widget)
-
-## Backlog / Next
-- P1: Make newsletter persist to MongoDB + double opt-in email
-- P1: Wire "Watch Demo" to an actual video modal
-- P1: Real auth (Emergent Google Auth) on Get Started instead of email capture
-- P2: Multi-page app: real Strategy/Marketing/Funding modules behind login
-- P2: i18n / locale switcher
-- P2: Blog CMS (mdx or Notion API)
-- P2: A/B test hero CTA copy + pricing layout
+- `GET /api/` health
+- `POST /api/signup` email capture
+- `POST /api/chat` Gemini chat
+- `POST /api/auth/session`, `GET /api/auth/me`, `POST /api/auth/logout`
+- `GET/POST/PATCH/DELETE /api/workspace/projects`
+- `POST /api/workspace/generate`, `GET/DELETE /api/workspace/generations`
+- `POST /api/newsletter`
 
 ## Verified
-- Backend: 6/6 pytest cases (TestHealth, TestSignup, TestChat) — see `/app/backend/tests/backend_test.py`
-- Frontend: 10/10 critical UI flows via testing_agent_v3 (iteration_1)
+- iteration_1: 6/6 backend + 10/10 frontend (Phase 1)
+- iteration_2: 19/19 backend + 100% critical frontend flows (Phase 2)
+
+## Backlog
+- P1: User uploads real demo MP4 → set `REACT_APP_DEMO_VIDEO_URL` in `frontend/.env`
+- P1: Verify a domain in Resend so welcome emails reach all subscribers
+- P2: Real PPTX/PDF export for Pitch Deck (currently markdown)
+- P2: Team workspaces (invites, roles)
+- P2: Pricing → Stripe checkout
+- P2: Streaming chat widget (SSE endpoint already exists)
+- P2: i18n
