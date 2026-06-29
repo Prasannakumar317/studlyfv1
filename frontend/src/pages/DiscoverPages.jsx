@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, MapPin, Building2, Loader2, Search, Briefcase, Star, BookOpen, Globe2 } from "lucide-react";
+import { ArrowLeft, ExternalLink, MapPin, Building2, Loader2, Search, Briefcase, Star, BookOpen, Globe2, Rocket, TrendingUp } from "lucide-react";
 import api from "../lib/api";
 import Navbar from "../components/landing/Navbar";
 import Footer from "../components/landing/Footer";
@@ -96,6 +96,9 @@ const STUB_HEADINGS = {
   "/discover/lists":    { title: "Featured lists",    subtitle: "Hand-picked collections of startups worth watching.",   icon: Star },
   "/discover/hiring":   { title: "Hiring companies",  subtitle: "Find startups actively looking for builders like you.",icon: Briefcase },
   "/discover/remote":   { title: "Remote jobs",       subtitle: "Work anywhere. Build everywhere.",                       icon: Globe2 },
+  "/startups":          { title: "Startups",          subtitle: "Browse and discover innovative startups from around the world.", icon: Rocket },
+  "/incubators":        { title: "Incubators",        subtitle: "Explore startup accelerators, incubators, and founder programs.", icon: Building2 },
+  "/vc-firms":          { title: "VC Firms",          subtitle: "Discover venture capital firms actively investing in startups.", icon: TrendingUp },
 };
 
 export function DiscoverListPage({ route = "/discover" }) {
@@ -108,9 +111,18 @@ export function DiscoverListPage({ route = "/discover" }) {
 
   useEffect(() => {
     setLoading(true);
-    const url = industry ? `/discover/startups?industry=${industry}&limit=16` : "/discover/startups?limit=16";
+    let url = "/discover/startups?limit=16";
+    if (route === "/incubators") {
+      url = "/discover/incubators?limit=16";
+    } else if (route === "/vc-firms") {
+      url = "/discover/vc-firms?limit=16";
+    } else if (route === "/startups") {
+      url = industry ? `/discover/startups?industry=${industry}&limit=16` : "/discover/startups?limit=16";
+    } else if (industry) {
+      url = `/discover/startups?industry=${industry}&limit=16`;
+    }
     api.get(url).then((r) => setItems(r.data.items || [])).catch(() => setItems([])).finally(() => setLoading(false));
-  }, [industry]);
+  }, [industry, route]);
 
   return (
     <div className="min-h-screen bg-white">

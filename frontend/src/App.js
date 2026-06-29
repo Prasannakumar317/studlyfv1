@@ -126,6 +126,9 @@ function AppRouter() {
       <Route path="/discover/hiring" element={<DiscoverListPage route="/discover/hiring" />} />
       <Route path="/discover/remote" element={<DiscoverListPage route="/discover/remote" />} />
       <Route path="/discover/company/:slug" element={<CompanyDetailPage />} />
+      <Route path="/startups" element={<DiscoverListPage route="/startups" />} />
+      <Route path="/incubators" element={<DiscoverListPage route="/incubators" />} />
+      <Route path="/vc-firms" element={<DiscoverListPage route="/vc-firms" />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

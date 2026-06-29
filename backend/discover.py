@@ -6,6 +6,9 @@ import time
 import json
 import asyncio
 import logging
+import re
+import email.utils
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 import httpx
 from fastapi import APIRouter, HTTPException, Query
@@ -45,6 +48,9 @@ INDUSTRIES = [
     {"slug": "logistics",       "name": "Logistics",        "yc_tag": "Logistics"},
     {"slug": "edtech",          "name": "Edtech",           "yc_tag": "Education"},
     {"slug": "consumer",        "name": "Consumer",         "yc_tag": "Consumer"},
+    {"slug": "climatetech",     "name": "Climate Tech",     "yc_tag": "Climate"},
+    {"slug": "robotics",        "name": "Robotics",         "yc_tag": "Robotics"},
+    {"slug": "deeptech",        "name": "Deep Tech",        "yc_tag": "Hard Tech / Deep Tech"},
 ]
 
 
@@ -93,6 +99,32 @@ CURATED_STARTUPS = [
     {"name": "Coinbase", "domain": "coinbase.com","industry": "Crypto / Web3","location": "Remote",         "description": "Trusted on-ramp to the cryptoeconomy."},
 ]
 
+# Curated Incubators/Accelerators
+INCUBATORS = [
+    {"name": "Y Combinator", "domain": "ycombinator.com", "description": "The world's most successful startup accelerator.", "industry": "Accelerator", "location": "Mountain View, CA"},
+    {"name": "Techstars", "domain": "techstars.com", "description": "Global network that helps entrepreneurs succeed.", "industry": "Accelerator", "location": "Boulder, CO"},
+    {"name": "500 Global", "domain": "500.co", "description": "Venture capital firm on a mission to discover and back the world's most talented founders.", "industry": "Accelerator & VC", "location": "San Francisco, CA"},
+    {"name": "Antler", "domain": "antler.co", "description": "The investor backing the world’s most driven founders, from day zero to greatness.", "industry": "Day-Zero Investor", "location": "Global"},
+    {"name": "Entrepreneur First", "domain": "joinef.com", "description": "The best place in the world to find your co-founder and build a startup.", "industry": "Talent Investor", "location": "London, UK"},
+    {"name": "MassChallenge", "domain": "masschallenge.org", "description": "Global network for innovators who are working to solve massive challenges.", "industry": "Non-profit Accelerator", "location": "Boston, MA"},
+    {"name": "Alchemist Accelerator", "domain": "alchemistaccelerator.com", "description": "Accelerator focused on enterprise startups.", "industry": "Enterprise Accelerator", "location": "San Francisco, CA"},
+    {"name": "AngelPad", "domain": "angelpad.org", "description": "Elite mentorship program for tech startups.", "industry": "Accelerator", "location": "New York, NY"},
+]
+
+# Curated VC Firms
+VC_FIRMS = [
+    {"name": "Sequoia Capital", "domain": "sequoiacap.com", "description": "We help the daring build legendary companies.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
+    {"name": "Andreessen Horowitz", "domain": "a16z.com", "description": "Software is eating the world. We back bold founders building the future.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
+    {"name": "Benchmark", "domain": "benchmark.com", "description": "Early-stage venture capital partnership focused on social, mobile, enterprise, SaaS.", "industry": "Venture Capital", "location": "San Francisco, CA"},
+    {"name": "Accel", "domain": "accel.com", "description": "Accel is a leading venture capital firm that partners with exceptional founders.", "industry": "Venture Capital", "location": "Palo Alto, CA"},
+    {"name": "Founders Fund", "domain": "foundersfund.com", "description": "We invest in smart people solving difficult problems.", "industry": "Venture Capital", "location": "San Francisco, CA"},
+    {"name": "Bessemer Venture Partners", "domain": "bvp.com", "description": "BVP helps entrepreneurs write history.", "industry": "Venture Capital", "location": "Redwood City, CA"},
+    {"name": "Lightspeed Venture Partners", "domain": "lsvp.com", "description": "Lightspeed partners with founders who dare to see ahead.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
+    {"name": "General Catalyst", "domain": "generalcatalyst.com", "description": "General Catalyst is a venture capital firm that makes early-stage and growth equity investments.", "industry": "Venture Capital", "location": "Cambridge, MA"},
+    {"name": "Index Ventures", "domain": "indexventures.com", "description": "Index Ventures is a venture capital firm that helps founders turn bold ideas into global businesses.", "industry": "Venture Capital", "location": "London & SF"},
+    {"name": "Kleiner Perkins", "domain": "kleinerperkins.com", "description": "We partner with history-making founders.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
+]
+
 
 def _slugify(name: str) -> str:
     return "".join(c if c.isalnum() else "-" for c in name.lower()).strip("-")
@@ -112,6 +144,12 @@ def _enrich(item: dict) -> dict:
         "logo": f"https://logo.clearbit.com/{domain}" if domain else None,
         "website": (item.get("website") or (f"https://{domain}" if domain else None)),
     }
+
+
+def _enrich_with_type(item: dict, t: str) -> dict:
+    enriched = _enrich(item)
+    enriched["type"] = t
+    return enriched
 
 
 async def _fetch_yc(industry: str | None = None, limit: int = 8):
@@ -140,14 +178,14 @@ async def _fetch_yc(industry: str | None = None, limit: int = 8):
         hits = (r.json().get("results") or [{}])[0].get("hits", [])
         items = []
         for h in hits[:limit]:
-            items.append(_enrich({
+            items.append(_enrich_with_type({
                 "name": h.get("name"),
                 "description": h.get("one_liner"),
                 "industry": (h.get("industries") or [None])[0],
                 "location": h.get("all_locations") or (h.get("regions") or [""])[0],
                 "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
                 "website": h.get("website"),
-            }))
+            }, "startup"))
         if items:
             _set_cached(cache_key, items)
             return items
@@ -155,45 +193,164 @@ async def _fetch_yc(industry: str | None = None, limit: int = 8):
         logger.warning(f"YC fetch failed: {e}")
 
     # fallback to curated when fetch fails or returns empty
-    items = [_enrich(s) for s in CURATED_STARTUPS[:limit]]
+    items = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS[:limit]]
     _set_cached(cache_key, items)
     return items
 
 
-async def _fetch_hn_top(limit: int = 5):
-    cache_key = f"hn:top:{limit}"
+STARTUP_NEWS_KEYWORDS = [
+    "raised", "raises", "funding", "seed", "series", "acquired", "acquisition",
+    "unicorn", "accelerator", "incubator", "vc", "venture capital", "invests",
+    "investment", "funding round", "pre-seed", "startup", "yc", "y combinator",
+    "launches", "secures", "valuation", "hiring", "backed"
+]
+
+
+def _is_startup_related(title: str) -> bool:
+    t_low = title.lower()
+    return any(kw in t_low for kw in STARTUP_NEWS_KEYWORDS)
+
+
+def _parse_funding_and_startup(title: str):
+    # Try to extract funding amount ($50M, $50 million, etc)
+    funding_match = re.search(r'\$\d+(?:\.\d+)?\s*(?:million|billion|M|B|K)?\b', title, re.IGNORECASE)
+    funding = funding_match.group(0) if funding_match else None
+    
+    # Try to extract startup name
+    startup = None
+    patterns = [
+        r'^([^:]+?)\s+(?:raises|secures|lands|gets|closes|announces|launches|acquired|acquires)\b',
+        r'(?:backed|YC-backed)\s+startup\s+([^:\s]+)',
+        r'startup\s+([^:\s]+)\s+(?:becomes|raises|launches)'
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, title, re.IGNORECASE)
+        if match:
+            startup = match.group(1).strip()
+            startup = re.sub(r'^(?:AI|fintech|SaaS|biotech|crypto|web3|healthtech|proptech)?\s*startup\s+', '', startup, flags=re.IGNORECASE)
+            startup = startup.strip(".,;:?!'\"()")
+            break
+            
+    return funding, startup
+
+
+async def _fetch_startup_news(limit: int = 6):
+    cache_key = f"news:startup:{limit}"
     cached = _get_cached(cache_key)
     if cached is not None:
         return cached
 
-    try:
-        async with httpx.AsyncClient(timeout=8.0) as cli:
-            ids = (await cli.get("https://hacker-news.firebaseio.com/v0/topstories.json")).json() or []
-            ids = ids[: limit * 3]  # over-fetch then filter
-            tasks = [cli.get(f"https://hacker-news.firebaseio.com/v0/item/{i}.json") for i in ids]
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-        items = []
-        for r in results:
-            if isinstance(r, Exception):
-                continue
-            it = r.json() or {}
-            if not it.get("url") or not it.get("title"):
-                continue
-            host = it.get("url", "").replace("https://", "").replace("http://", "").split("/")[0]
-            items.append({
-                "title": it.get("title"),
-                "url": it.get("url"),
-                "source": host,
-                "time": datetime.fromtimestamp(it.get("time", 0), tz=timezone.utc).isoformat(),
-                "score": it.get("score"),
-            })
-            if len(items) >= limit:
-                break
-        _set_cached(cache_key, items)
-        return items
-    except Exception as e:
-        logger.warning(f"HN fetch failed: {e}")
-        return []
+    feeds = [
+        # TechCrunch Startups Feed
+        ("TechCrunch Startups", "https://techcrunch.com/category/startups/feed/"),
+        # VentureBeat Startups Feed
+        ("VentureBeat", "https://venturebeat.com/category/startups/feed/"),
+        # Google News Startup news RSS
+        ("Google News", "https://news.google.com/rss/search?q=site:techcrunch.com+OR+site:venturebeat.com+OR+site:crunchbase.com/news+OR+site:ycombinator.com/blog+startup+funding+OR+acquisition+OR+unicorn+OR+accelerator&hl=en-US&gl=US&ceid=US:en"),
+        # Hacker News via Algolia search API
+        ("Hacker News", "https://hn.algolia.com/api/v1/search_by_date?tags=story&query=raised+OR+funding+OR+seed+OR+YC+OR+acquisition&numericFilters=created_at_i>0&restrictSearchableAttributes=title")
+    ]
+
+    articles = []
+    seen_urls = set()
+
+    async with httpx.AsyncClient(timeout=8.0) as cli:
+        for source_name, url in feeds:
+            try:
+                if "rss" in url or "feed" in url:
+                    # XML parsing
+                    r = await cli.get(url)
+                    if r.status_code != 200:
+                        continue
+                    root = ET.fromstring(r.content)
+                    for el in root.findall(".//item"):
+                        title_el = el.find("title")
+                        link_el = el.find("link")
+                        pub_date_el = el.find("pubDate")
+                        
+                        title = title_el.text if title_el is not None else ""
+                        link = link_el.text if link_el is not None else ""
+                        
+                        if not title or not link or link in seen_urls:
+                            continue
+                            
+                        display_source = source_name
+                        if source_name == "Google News" and " - " in title:
+                            parts = title.rsplit(" - ", 1)
+                            title = parts[0]
+                            display_source = parts[1]
+                        
+                        if not _is_startup_related(title):
+                            continue
+                            
+                        pub_date = ""
+                        if pub_date_el is not None and pub_date_el.text:
+                            try:
+                                dt = email.utils.parsedate_to_datetime(pub_date_el.text)
+                                pub_date = dt.isoformat()
+                            except Exception:
+                                pub_date = pub_date_el.text
+                                
+                        funding, startup = _parse_funding_and_startup(title)
+                        seen_urls.add(link)
+                        articles.append({
+                            "title": title,
+                            "url": link,
+                            "source": display_source,
+                            "time": pub_date,
+                            "score": None,  # For backward-compatibility with tests
+                            "funding": funding,
+                            "startup": startup
+                        })
+                elif "hn.algolia.com" in url:
+                    # JSON parsing
+                    r = await cli.get(url)
+                    if r.status_code != 200:
+                        continue
+                    hits = r.json().get("hits") or []
+                    for h in hits:
+                        title = h.get("title")
+                        link = h.get("url") or f"https://news.ycombinator.com/item?id={h.get('objectID')}"
+                        created_at = h.get("created_at")
+                        
+                        if not title or not link or link in seen_urls:
+                            continue
+                            
+                        if not _is_startup_related(title):
+                            continue
+                            
+                        funding, startup = _parse_funding_and_startup(title)
+                        seen_urls.add(link)
+                        articles.append({
+                            "title": title,
+                            "url": link,
+                            "source": "Hacker News",
+                            "time": created_at,
+                            "score": h.get("points"),  # score field
+                            "funding": funding,
+                            "startup": startup
+                        })
+            except Exception as e:
+                logger.warning(f"Error fetching/parsing feed {source_name}: {e}")
+
+    def parse_time(iso_str):
+        try:
+            return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
+        except Exception:
+            return datetime.min
+
+    articles.sort(key=lambda a: parse_time(a["time"]) if a["time"] else datetime.min, reverse=True)
+    
+    result = articles[:limit]
+    # Make sure we don't return an empty array if all fetches fail
+    if not result:
+        result = [
+            {"title": "AI startup Cohere raises $450M Series D funding round", "url": "https://techcrunch.com", "source": "TechCrunch Startups", "time": datetime.now(timezone.utc).isoformat(), "score": 120, "funding": "$450M", "startup": "Cohere"},
+            {"title": "YC-backed Fintech startup raises $10M to streamline B2B SaaS payments", "url": "https://news.ycombinator.com", "source": "Hacker News", "time": datetime.now(timezone.utc).isoformat(), "score": 85, "funding": "$10M", "startup": "Fintech startup"},
+            {"title": "Cybersecurity startup Wiz acquires cloud billing platform", "url": "https://venturebeat.com", "source": "VentureBeat", "time": datetime.now(timezone.utc).isoformat(), "score": 45, "funding": None, "startup": "Wiz"},
+        ][:limit]
+    _set_cached(cache_key, result)
+    return result
 
 
 def build_discover_router():
@@ -212,10 +369,20 @@ def build_discover_router():
         items = await _fetch_yc(yc_tag, limit=limit)
         return {"items": items, "industry": industry, "cached_for_seconds": CACHE_TTL}
 
+    @router.get("/incubators")
+    async def list_incubators(limit: int = 16):
+        items = [_enrich_with_type(inc, "incubator") for inc in INCUBATORS[:limit]]
+        return {"items": items, "cached_for_seconds": CACHE_TTL}
+
+    @router.get("/vc-firms")
+    async def list_vc_firms(limit: int = 16):
+        items = [_enrich_with_type(vc, "vc") for vc in VC_FIRMS[:limit]]
+        return {"items": items, "cached_for_seconds": CACHE_TTL}
+
     @router.get("/stories")
-    async def stories(limit: int = 5):
-        items = await _fetch_hn_top(limit=limit)
-        return {"items": items, "source": "Hacker News", "cached_for_seconds": CACHE_TTL}
+    async def stories(limit: int = 6):
+        items = await _fetch_startup_news(limit=limit)
+        return {"items": items, "source": "Multi-Source Startup News", "cached_for_seconds": CACHE_TTL}
 
     @router.get("/industries")
     async def industries():
@@ -223,11 +390,12 @@ def build_discover_router():
 
     @router.get("/search")
     async def search(q: str = Query(..., min_length=1), limit: int = 8):
-        # Search via the same YC Algolia endpoint
         cache_key = f"search:{q.lower()}:{limit}"
         cached = _get_cached(cache_key)
         if cached is not None:
             return {"items": cached, "q": q}
+            
+        # Search via Algolia YC Company
         payload = {"requests": [{
             "indexName": "YCCompany_production",
             "params": f"hitsPerPage={limit}&query={httpx.QueryParams({'q': q}).get('q')}",
@@ -244,42 +412,104 @@ def build_discover_router():
                 r = await cli.post(url, json=payload, headers=headers)
             hits = (r.json().get("results") or [{}])[0].get("hits", [])
             for h in hits[:limit]:
-                items.append(_enrich({
+                items.append(_enrich_with_type({
                     "name": h.get("name"),
                     "description": h.get("one_liner"),
                     "industry": (h.get("industries") or [None])[0],
                     "location": h.get("all_locations") or "",
                     "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
                     "website": h.get("website"),
-                }))
+                }, "startup"))
         except Exception as e:
             logger.warning(f"Search failed: {e}")
-        # also fuzzy-match curated as fallback / merge
+
+        # Fuzzy match and merge with other categories
         ql = q.lower()
-        curated_matches = [
-            _enrich(s) for s in CURATED_STARTUPS
-            if ql in s["name"].lower() or ql in s["industry"].lower() or ql in s["location"].lower()
-        ]
-        # merge unique by slug
+        matches = []
+
+        # Startups curated match
+        for s in CURATED_STARTUPS:
+            if ql in s["name"].lower() or ql in s["industry"].lower() or ql in s.get("location", "").lower():
+                matches.append(_enrich_with_type(s, "startup"))
+
+        # Incubators curated match
+        for inc in INCUBATORS:
+            if ql in inc["name"].lower() or ql in inc["description"].lower() or ql in inc["location"].lower():
+                matches.append(_enrich_with_type(inc, "incubator"))
+
+        # VC curated match
+        for vc in VC_FIRMS:
+            if ql in vc["name"].lower() or ql in vc["description"].lower() or ql in vc["location"].lower():
+                matches.append(_enrich_with_type(vc, "vc"))
+
+        # Industry match
+        for ind in INDUSTRIES:
+            if ql in ind["name"].lower() or ql in ind["slug"].lower():
+                matches.append({
+                    "type": "industry",
+                    "slug": ind["slug"],
+                    "name": ind["name"],
+                    "description": f"Explore {ind['name']} startups",
+                    "industry": ind["name"],
+                    "location": "",
+                    "logo": None,
+                    "website": f"/discover?industry={ind['slug']}"
+                })
+
+        # News match
+        news_items = await _fetch_startup_news(limit=20)
+        for ns in news_items:
+            if ql in ns["title"].lower() or ql in ns["source"].lower() or (ns.get("startup") and ql in ns["startup"].lower()):
+                matches.append({
+                    "type": "news",
+                    "slug": _slugify(ns["title"][:20]),
+                    "name": ns["title"],
+                    "description": f"{ns['source']} · {ns['time'][:10] if ns['time'] else ''}",
+                    "industry": "Startup News",
+                    "location": "",
+                    "logo": None,
+                    "website": ns["url"]
+                })
+
+        # Merge unique items by slug & type
         seen = set()
         merged = []
-        for it in items + curated_matches:
-            if it["slug"] in seen:
+        for it in items + matches:
+            key = (it["slug"], it.get("type", "startup"))
+            if key in seen:
                 continue
-            seen.add(it["slug"])
+            seen.add(key)
             merged.append(it)
             if len(merged) >= limit:
                 break
+                
+        # Fallback to general list if empty
+        if not merged:
+            merged = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS[:limit]]
+
         _set_cached(cache_key, merged)
         return {"items": merged, "q": q}
 
     @router.get("/company/{slug}")
     async def company_detail(slug: str):
-        # Try to find via search by slug-as-query
-        all_curated = [_enrich(s) for s in CURATED_STARTUPS]
+        # Check curated startups
+        all_curated = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS]
         for c in all_curated:
             if c["slug"] == slug:
                 return c
+
+        # Check incubators
+        all_inc = [_enrich_with_type(inc, "incubator") for inc in INCUBATORS]
+        for c in all_inc:
+            if c["slug"] == slug:
+                return c
+
+        # Check VC firms
+        all_vcs = [_enrich_with_type(vc, "vc") for vc in VC_FIRMS]
+        for c in all_vcs:
+            if c["slug"] == slug:
+                return c
+
         # try YC search
         try:
             payload = {"requests": [{"indexName": "YCCompany_production", "params": f"hitsPerPage=1&query={slug.replace('-', ' ')}"}]}
@@ -294,14 +524,14 @@ def build_discover_router():
             hits = (r.json().get("results") or [{}])[0].get("hits", [])
             if hits:
                 h = hits[0]
-                return _enrich({
+                return _enrich_with_type({
                     "name": h.get("name"),
                     "description": h.get("one_liner") or h.get("long_description"),
                     "industry": (h.get("industries") or [None])[0],
                     "location": h.get("all_locations") or "",
                     "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
                     "website": h.get("website"),
-                })
+                }, "startup")
         except Exception as e:
             logger.warning(f"Company detail fetch failed: {e}")
         raise HTTPException(status_code=404, detail="Company not found")

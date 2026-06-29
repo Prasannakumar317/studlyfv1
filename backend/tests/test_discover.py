@@ -47,7 +47,7 @@ class TestDiscover:
         r = api.get(f"{BASE_URL}/api/discover/industries", timeout=10)
         assert r.status_code == 200
         items = r.json().get("items") or []
-        assert len(items) == 13, f"expected 13 industries got {len(items)}"
+        assert len(items) == 16, f"expected 16 industries got {len(items)}"
         assert all("slug" in i and "name" in i for i in items)
 
     def test_search_stripe(self, api):

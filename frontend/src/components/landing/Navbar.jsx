@@ -28,9 +28,17 @@ export default function Navbar({ onGetStarted }) {
   };
   const scheduleCloseDiscover = () => {
     if (discoverHoverTimeout.current) clearTimeout(discoverHoverTimeout.current);
-    discoverHoverTimeout.current = setTimeout(() => setDiscoverOpen(false), 180);
+    discoverHoverTimeout.current = setTimeout(() => setDiscoverOpen(false), 250);
   };
   const toggleDiscover = () => setDiscoverOpen((s) => !s);
+  const handleButtonClick = (e) => {
+    e.stopPropagation();
+    if (isDesktop) {
+      openDiscover();
+    } else {
+      toggleDiscover();
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -76,7 +84,7 @@ export default function Navbar({ onGetStarted }) {
           >
             <button
               type="button"
-              onClick={toggleDiscover}
+              onClick={handleButtonClick}
               aria-haspopup="dialog"
               aria-expanded={discoverOpen}
               aria-controls="discover-mega"
@@ -86,11 +94,6 @@ export default function Navbar({ onGetStarted }) {
               Discover
               <ChevronDown className={`w-3.5 h-3.5 transition-transform ${discoverOpen ? "rotate-180" : ""}`} />
             </button>
-            <AnimatePresence>
-              {discoverOpen && isDesktop && (
-                <DiscoverMegaMenu onClose={() => setDiscoverOpen(false)} />
-              )}
-            </AnimatePresence>
           </div>
         </nav>
 
@@ -165,23 +168,21 @@ export default function Navbar({ onGetStarted }) {
         )}
       </AnimatePresence>
 
-      {/* Mobile mega-menu sheet */}
+      {/* Mobile mega-menu slide-over */}
       <AnimatePresence>
         {discoverOpen && !isDesktop && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-            onClick={() => setDiscoverOpen(false)}
-          >
-            <motion.div
-              initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -20, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="absolute top-16 left-3 right-3 max-h-[90vh] overflow-y-auto rounded-[20px] bg-white border border-gray-200 shadow-xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <DiscoverMegaMenu onClose={() => setDiscoverOpen(false)} panelId="discover-mega-mobile" inline />
-            </motion.div>
-          </motion.div>
+          <DiscoverMegaMenu onClose={() => setDiscoverOpen(false)} panelId="discover-mega-mobile" isMobile />
+        )}
+      </AnimatePresence>
+
+      {/* Desktop mega-menu positioned relative to full viewport header */}
+      <AnimatePresence>
+        {discoverOpen && isDesktop && (
+          <DiscoverMegaMenu
+            onClose={() => setDiscoverOpen(false)}
+            onMouseEnter={openDiscover}
+            onMouseLeave={scheduleCloseDiscover}
+          />
         )}
       </AnimatePresence>
     </motion.header>
