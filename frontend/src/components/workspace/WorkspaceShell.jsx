@@ -42,14 +42,14 @@ export default function WorkspaceShell({ children }) {
               className={({ isActive }) =>
                 `group flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
                   isActive
-                    ? "bg-gradient-to-r from-[#F4F1FF] to-[#FFE9F2] text-gray-900 border border-[#6C63FF]/20"
+                    ? "bg-gradient-to-r from-[#F4F1FF] to-[#FFE9F2] text-gray-900 border border-[#7C3AED]/20"
                     : "text-gray-600 hover:bg-gray-50"
                 }`
               }
             >
               {({ isActive }) => (
                 <>
-                  <it.icon className={`w-4 h-4 ${isActive ? "text-[#6C63FF]" : ""}`} />
+                  <it.icon className={`w-4 h-4 ${isActive ? "text-[#7C3AED]" : ""}`} />
                   {it.label}
                 </>
               )}
@@ -58,7 +58,7 @@ export default function WorkspaceShell({ children }) {
         </nav>
 
         <div className="border-t border-gray-100 p-3">
-          <div className="rounded-2xl p-3 bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white relative overflow-hidden mb-3">
+          <div className="rounded-2xl p-3 bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white relative overflow-hidden mb-3">
             <Sparkles className="w-4 h-4" />
             <p className="mt-2 text-sm font-semibold leading-tight">You&apos;re on the Pro trial</p>
             <p className="text-[11px] opacity-90 mt-0.5">14 days left</p>
@@ -69,7 +69,7 @@ export default function WorkspaceShell({ children }) {
               {user.picture ? (
                 <img src={user.picture} alt={user.name} className="w-9 h-9 rounded-full object-cover" />
               ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white flex items-center justify-center font-semibold text-sm">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white flex items-center justify-center font-semibold text-sm">
                   {(user.name || user.email).slice(0, 1).toUpperCase()}
                 </div>
               )}

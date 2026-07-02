@@ -48,16 +48,16 @@ export default function VideoModal({ open, onOpenChange }) {
               <div className="absolute inset-0 grid-bg opacity-50" />
               {/* watermark badge */}
               <div className="absolute top-4 left-4 z-10 flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs font-semibold">
-                <Play className="w-3.5 h-3.5 text-[#6C63FF]" /> Demo preview
+                <Play className="w-3.5 h-3.5 text-[#7C3AED]" /> Demo preview
               </div>
               <div className="absolute top-4 right-4 z-10 text-[10px] font-bold tracking-widest uppercase text-gray-400">
                 Real video coming soon
               </div>
-              <Scene delay={0} color="#6C63FF" icon={Sparkles} title="Drop in your idea." line="Tell STUDLYF AI what you're building — one line is enough." />
-              <Scene delay={4} color="#FF4D94" icon={Bot} title="Ten agents go to work." line="Strategy, brand, market, finance — they run in parallel." />
-              <Scene delay={8} color="#FF7A18" icon={TrendingUp} title="See your SWOT, GTM and roadmap." line="Generated, structured and editable in seconds." />
-              <Scene delay={12} color="#2ECC71" icon={Megaphone} title="Marketing studio kicks in." line="Campaigns, content pillars, social posts — done." />
-              <Scene delay={16} color="#FFC145" icon={PiggyBank} title="Investor-ready in minutes." line="Pitch deck, VC score, one-pager. Export. Pitch. Win." />
+              <Scene delay={0} color="#7C3AED" icon={Sparkles} title="Drop in your idea." line="Tell STUDLYF AI what you're building — one line is enough." />
+              <Scene delay={4} color="#EC4899" icon={Bot} title="Ten agents go to work." line="Strategy, brand, market, finance — they run in parallel." />
+              <Scene delay={8} color="#A855F7" icon={TrendingUp} title="See your SWOT, GTM and roadmap." line="Generated, structured and editable in seconds." />
+              <Scene delay={12} color="#22C55E" icon={Megaphone} title="Marketing studio kicks in." line="Campaigns, content pillars, social posts — done." />
+              <Scene delay={16} color="#F59E0B" icon={PiggyBank} title="Investor-ready in minutes." line="Pitch deck, VC score, one-pager. Export. Pitch. Win." />
             </div>
           )}
         </div>

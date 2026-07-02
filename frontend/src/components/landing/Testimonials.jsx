@@ -33,7 +33,7 @@ export default function Testimonials() {
                 >
                   <div className="flex justify-center gap-1 mb-5">
                     {Array.from({ length: t.rating }).map((_, k) => (
-                      <Star key={k} className="w-5 h-5 fill-[#FFC145] text-[#FFC145]" />
+                      <Star key={k} className="w-5 h-5 fill-[#F59E0B] text-[#F59E0B]" />
                     ))}
                   </div>
                   <p className="font-display text-xl md:text-2xl text-gray-900 leading-snug tracking-tight">
@@ -56,7 +56,7 @@ export default function Testimonials() {
               <button
                 key={i}
                 onClick={() => setIdx(i)}
-                className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-gradient-to-r from-[#6C63FF] to-[#FF4D94]" : "w-2 bg-gray-200"}`}
+                className={`h-2 rounded-full transition-all ${i === idx ? "w-8 bg-gradient-to-r from-[#7C3AED] to-[#EC4899]" : "w-2 bg-gray-200"}`}
                 data-testid={`testimonial-dot-${i}`}
                 aria-label={`Go to testimonial ${i + 1}`}
               />

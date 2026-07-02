@@ -2,27 +2,27 @@
 export const LOGO_URL = "https://customer-assets.emergentagent.com/job_studlyf-ai/artifacts/4bpxnsrg_Screenshot%202026-06-28%20130229.png";
 
 export const NAV_LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "Solutions", href: "#solutions" },
-  { label: "Features", href: "#features" },
-  { label: "Workflow", href: "#workflow" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Home", href: "/#home" },
+  { label: "About Us", href: "/about" },
+  { label: "Discover", href: "/discover" },
+  { label: "Workspace", href: "/workspace" },
+  { label: "Pricing", href: "/#pricing" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export const PLATFORM_FEATURES = [
-  { title: "Business Foundations", desc: "Build a rock-solid base — vision, mission, model and metrics defined by AI.", icon: "Building2", gradient: "from-[#6C63FF] to-[#FF4D94]" },
-  { title: "Strategy Planning", desc: "SWOT, Porter, Lean Canvas, Blue Ocean — generated, refined and ready.", icon: "Compass", gradient: "from-[#FF4D94] to-[#FF7A18]" },
-  { title: "Market Intelligence", desc: "Live competitor scans, TAM/SAM/SOM and trend reports in seconds.", icon: "Globe2", gradient: "from-[#3FA9F5] to-[#6C63FF]" },
-  { title: "Brand Builder", desc: "Identity, voice, taglines and positioning that feel hand-crafted.", icon: "Palette", gradient: "from-[#FF7A18] to-[#FF4D94]" },
-  { title: "Marketing Studio", desc: "Campaigns, content pillars, social posts and email sequences on demand.", icon: "Megaphone", gradient: "from-[#2ECC71] to-[#3FA9F5]" },
-  { title: "Sales Planner", desc: "Funnels, scripts, CRM workflows and KPIs your team will actually use.", icon: "Target", gradient: "from-[#FF4D94] to-[#6C63FF]" },
-  { title: "Investor Toolkit", desc: "Pitch decks, one-pagers, VC scores and data rooms built for raises.", icon: "PiggyBank", gradient: "from-[#FFC145] to-[#FF7A18]" },
-  { title: "Knowledge Hub", desc: "A curated AI library of frameworks, playbooks and templates.", icon: "BookOpen", gradient: "from-[#6C63FF] to-[#3FA9F5]" },
-  { title: "AI Chat", desc: "Talk to a strategist 24/7 — context-aware, fast and never tired.", icon: "MessageSquare", gradient: "from-[#FF7A18] to-[#FFC145]" },
-  { title: "Multi-Agent Workspace", desc: "Ten specialist agents collaborate on your startup in parallel.", icon: "Users", gradient: "from-[#FF4D94] to-[#2ECC71]" },
-  { title: "Document Generator", desc: "From contracts to investor reports — exportable to PDF, DOCX, PPTX.", icon: "FileText", gradient: "from-[#3FA9F5] to-[#FF4D94]" },
-  { title: "Analytics Dashboard", desc: "One canvas. Every metric. Real-time. Beautifully visualised.", icon: "LineChart", gradient: "from-[#2ECC71] to-[#6C63FF]" },
+  { title: "Business Foundations", desc: "Build a rock-solid base — vision, mission, model and metrics defined by AI.", icon: "Building2", gradient: "from-[#7C3AED] to-[#EC4899]" },
+  { title: "Strategy Planning", desc: "SWOT, Porter, Lean Canvas, Blue Ocean — generated, refined and ready.", icon: "Compass", gradient: "from-[#EC4899] to-[#A855F7]" },
+  { title: "Market Intelligence", desc: "Live competitor scans, TAM/SAM/SOM and trend reports in seconds.", icon: "Globe2", gradient: "from-[#6366F1] to-[#7C3AED]" },
+  { title: "Brand Builder", desc: "Identity, voice, taglines and positioning that feel hand-crafted.", icon: "Palette", gradient: "from-[#A855F7] to-[#EC4899]" },
+  { title: "Marketing Studio", desc: "Campaigns, content pillars, social posts and email sequences on demand.", icon: "Megaphone", gradient: "from-[#22C55E] to-[#6366F1]" },
+  { title: "Sales Planner", desc: "Funnels, scripts, CRM workflows and KPIs your team will actually use.", icon: "Target", gradient: "from-[#EC4899] to-[#7C3AED]" },
+  { title: "Investor Toolkit", desc: "Pitch decks, one-pagers, VC scores and data rooms built for raises.", icon: "PiggyBank", gradient: "from-[#F59E0B] to-[#A855F7]" },
+  { title: "Knowledge Hub", desc: "A curated AI library of frameworks, playbooks and templates.", icon: "BookOpen", gradient: "from-[#7C3AED] to-[#6366F1]" },
+  { title: "AI Chat", desc: "Talk to a strategist 24/7 — context-aware, fast and never tired.", icon: "MessageSquare", gradient: "from-[#A855F7] to-[#F59E0B]" },
+  { title: "Multi-Agent Workspace", desc: "Ten specialist agents collaborate on your startup in parallel.", icon: "Users", gradient: "from-[#EC4899] to-[#22C55E]" },
+  { title: "Document Generator", desc: "From contracts to investor reports — exportable to PDF, DOCX, PPTX.", icon: "FileText", gradient: "from-[#6366F1] to-[#EC4899]" },
+  { title: "Analytics Dashboard", desc: "One canvas. Every metric. Real-time. Beautifully visualised.", icon: "LineChart", gradient: "from-[#22C55E] to-[#7C3AED]" },
 ];
 
 export const SOLUTIONS = [
@@ -30,69 +30,69 @@ export const SOLUTIONS = [
     title: "STUDLYF for Startups",
     sub: "Launch smarter. Grow faster with AI.",
     icon: "Rocket",
-    gradient: "from-[#6C63FF] to-[#FF4D94]",
+    gradient: "from-[#7C3AED] to-[#EC4899]",
     features: ["Validate business ideas", "Build business foundations", "Market research", "GTM planning", "Investor readiness"],
   },
   {
     title: "STUDLYF for Pre-Incubators",
     sub: "Turn student ideas into startups with AI.",
     icon: "GraduationCap",
-    gradient: "from-[#3FA9F5] to-[#6C63FF]",
+    gradient: "from-[#6366F1] to-[#7C3AED]",
     features: ["Startup learning paths", "Business validation", "Pitch preparation", "Faculty dashboard", "Progress tracking"],
   },
   {
     title: "STUDLYF for Incubators",
     sub: "Accelerate every cohort with AI.",
     icon: "Building",
-    gradient: "from-[#FF4D94] to-[#FF7A18]",
+    gradient: "from-[#EC4899] to-[#A855F7]",
     features: ["Portfolio management", "Cohort dashboard", "Mentor collaboration", "Funding readiness", "Demo day prep"],
   },
   {
     title: "STUDLYF for Mentors",
     sub: "Mentor faster with AI-powered preparation.",
     icon: "UserCheck",
-    gradient: "from-[#2ECC71] to-[#3FA9F5]",
+    gradient: "from-[#22C55E] to-[#6366F1]",
     features: ["Startup diagnostics", "AI mentor insights", "SWOT reports", "Session prep", "Startup scoring"],
   },
   {
     title: "STUDLYF for Agencies",
     sub: "Deliver more. Burn out less with AI.",
     icon: "Briefcase",
-    gradient: "from-[#FF7A18] to-[#FFC145]",
+    gradient: "from-[#A855F7] to-[#F59E0B]",
     features: ["Client strategy", "Marketing campaigns", "Brand creation", "SEO planning", "White-label reports"],
   },
   {
     title: "STUDLYF for Investors & VCs",
     sub: "Assess faster. Back smarter. Grow stronger.",
     icon: "TrendingUp",
-    gradient: "from-[#FFC145] to-[#FF4D94]",
+    gradient: "from-[#F59E0B] to-[#EC4899]",
     features: ["Startup evaluation", "VC score", "Due diligence", "Founder assessment", "Portfolio insights"],
   },
 ];
 
 export const WORKFLOW_STEPS = [
-  { label: "Idea", icon: "Lightbulb", color: "#6C63FF" },
-  { label: "Validation", icon: "ShieldCheck", color: "#FF4D94" },
-  { label: "Market Research", icon: "Globe2", color: "#3FA9F5" },
-  { label: "Strategy", icon: "Compass", color: "#FF7A18" },
-  { label: "Brand", icon: "Palette", color: "#FF4D94" },
-  { label: "Marketing", icon: "Megaphone", color: "#2ECC71" },
-  { label: "Investor", icon: "PiggyBank", color: "#FFC145" },
-  { label: "Launch", icon: "Rocket", color: "#6C63FF" },
-  { label: "Growth", icon: "TrendingUp", color: "#FF4D94" },
+  { label: "Idea", icon: "Lightbulb", color: "#7C3AED" },
+  { label: "Validation", icon: "ShieldCheck", color: "#EC4899" },
+  { label: "Market Research", icon: "Globe2", color: "#6366F1" },
+  { label: "Strategy", icon: "Compass", color: "#A855F7" },
+  { label: "Brand", icon: "Palette", color: "#EC4899" },
+  { label: "Marketing", icon: "Megaphone", color: "#22C55E" },
+  { label: "Investor", icon: "PiggyBank", color: "#F59E0B" },
+  { label: "Launch", icon: "Rocket", color: "#7C3AED" },
+  { label: "Growth", icon: "TrendingUp", color: "#EC4899" },
 ];
 
 export const AI_AGENTS = [
-  { name: "Business Agent", role: "Strategy & operations", icon: "Briefcase", color: "#6C63FF" },
-  { name: "Research Agent", role: "Market intelligence", icon: "Search", color: "#3FA9F5" },
-  { name: "Marketing Agent", role: "Campaigns & growth", icon: "Megaphone", color: "#FF4D94" },
-  { name: "SEO Agent", role: "Search & content", icon: "Globe2", color: "#2ECC71" },
-  { name: "Brand Agent", role: "Identity & voice", icon: "Palette", color: "#FF7A18" },
-  { name: "Sales Agent", role: "Funnels & deals", icon: "Target", color: "#FF4D94" },
-  { name: "Investor Agent", role: "Decks & VC score", icon: "PiggyBank", color: "#FFC145" },
-  { name: "Content Agent", role: "Copy & storytelling", icon: "PenLine", color: "#6C63FF" },
-  { name: "Finance Agent", role: "Models & forecasts", icon: "Calculator", color: "#2ECC71" },
-  { name: "Analytics Agent", role: "Insights & KPIs", icon: "LineChart", color: "#3FA9F5" },
+  { name: "Business Agent", role: "Strategy & operations", icon: "Briefcase", color: "#7C3AED" },
+  { name: "Research Agent", role: "Market intelligence", icon: "Search", color: "#6366F1" },
+  { name: "Marketing Agent", role: "Campaigns & growth", icon: "Megaphone", color: "#EC4899" },
+  { name: "SEO Agent", role: "Search & content", icon: "Globe2", color: "#22C55E" },
+  { name: "Brand Agent", role: "Identity & voice", icon: "Palette", color: "#A855F7" },
+  { name: "Sales Agent", role: "Funnels & deals", icon: "Target", color: "#EC4899" },
+  { name: "Investor Agent", role: "Decks & VC score", icon: "PiggyBank", color: "#F59E0B" },
+  { name: "Content Agent", role: "Copy & storytelling", icon: "PenLine", color: "#7C3AED" },
+  { name: "Finance Agent", role: "Models & forecasts", icon: "Calculator", color: "#22C55E" },
+  { name: "Analytics Agent", role: "Insights & KPIs", icon: "LineChart", color: "#6366F1" },
 ];
 
 export const METRICS = [
@@ -147,8 +147,6 @@ export const BLOG_POSTS = [
 ];
 
 export const FOOTER_LINKS = {
-  Company: ["About", "Careers", "Press", "Contact"],
-  Solutions: ["Startups", "Incubators", "Mentors", "Agencies", "Investors"],
-  Resources: ["Blog", "Templates", "Playbooks", "Changelog"],
-  Legal: ["Privacy", "Terms", "Security", "Cookies"],
+  Company: ["About", "Careers", "Discover", "Pricing", "Blog", "Resources", "Startup Directory", "Contact"],
+  Community: ["LinkedIn", "Instagram", "YouTube", "Twitter", "Newsletter"],
 };

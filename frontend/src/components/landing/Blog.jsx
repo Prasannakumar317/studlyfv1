@@ -37,10 +37,10 @@ export default function Blog() {
                 <img src={b.img} alt={b.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="p-6">
-                <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-[#6C63FF]">{b.tag}</span>
+                <span className="inline-block text-[10px] uppercase tracking-widest font-bold text-[#7C3AED]">{b.tag}</span>
                 <h3 className="mt-3 font-display text-lg font-semibold text-gray-900 leading-snug">{b.title}</h3>
                 <p className="mt-2 text-sm text-gray-600">{b.excerpt}</p>
-                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-700 group-hover:text-[#FF4D94] transition">
+                <span className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-gray-700 group-hover:text-[#EC4899] transition">
                   Read article <ArrowUpRight className="w-3.5 h-3.5" />
                 </span>
               </div>

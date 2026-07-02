@@ -17,16 +17,16 @@ import { Card, ScoreRing, COLORS } from "../components/workspace/visuals/Primiti
 
 /* ---------- Quick start cards ---------- */
 const QUICK_STARTS = [
-  { emoji: "✨", title: "Validate my startup", prompt: "I have a startup idea. Help me validate it step by step — market fit, problem severity, willingness to pay, risks.", gradient: "from-[#6C63FF] to-[#FF4D94]" },
-  { emoji: "📈", title: "Build business plan", prompt: "Walk me through building a complete business plan — vision, model, market, GTM, financials.", gradient: "from-[#3B82F6] to-[#6C63FF]" },
-  { emoji: "🎯", title: "Go-to-market strategy", prompt: "Help me design a go-to-market strategy: ICP, segments, channels, messaging, funnel.", gradient: "from-[#FF4D94] to-[#FF8A00]" },
+  { emoji: "✨", title: "Validate my startup", prompt: "I have a startup idea. Help me validate it step by step — market fit, problem severity, willingness to pay, risks.", gradient: "from-[#7C3AED] to-[#EC4899]" },
+  { emoji: "📈", title: "Build business plan", prompt: "Walk me through building a complete business plan — vision, model, market, GTM, financials.", gradient: "from-[#3B82F6] to-[#7C3AED]" },
+  { emoji: "🎯", title: "Go-to-market strategy", prompt: "Help me design a go-to-market strategy: ICP, segments, channels, messaging, funnel.", gradient: "from-[#EC4899] to-[#FF8A00]" },
   { emoji: "📊", title: "Market research", prompt: "Run a market research pass — TAM/SAM/SOM, trends, key players, opportunities.", gradient: "from-[#22C55E] to-[#3B82F6]" },
-  { emoji: "💰", title: "Funding preparation", prompt: "Help me prepare for fundraising — what investors look for, materials needed, my readiness.", gradient: "from-[#FFC145] to-[#FF8A00]" },
-  { emoji: "🚀", title: "MVP roadmap", prompt: "Help me scope an MVP and a 90-day build roadmap with milestones.", gradient: "from-[#6C63FF] to-[#22C55E]" },
-  { emoji: "🎨", title: "Brand strategy", prompt: "Design a brand strategy — story, voice, positioning, taglines and palette.", gradient: "from-[#FF8A00] to-[#FF4D94]" },
-  { emoji: "📢", title: "Marketing plan", prompt: "Draft a 1-page marketing plan with objectives, channels, KPIs and 90-day calendar.", gradient: "from-[#FF4D94] to-[#6C63FF]" },
+  { emoji: "💰", title: "Funding preparation", prompt: "Help me prepare for fundraising — what investors look for, materials needed, my readiness.", gradient: "from-[#F59E0B] to-[#FF8A00]" },
+  { emoji: "🚀", title: "MVP roadmap", prompt: "Help me scope an MVP and a 90-day build roadmap with milestones.", gradient: "from-[#7C3AED] to-[#22C55E]" },
+  { emoji: "🎨", title: "Brand strategy", prompt: "Design a brand strategy — story, voice, positioning, taglines and palette.", gradient: "from-[#FF8A00] to-[#EC4899]" },
+  { emoji: "📢", title: "Marketing plan", prompt: "Draft a 1-page marketing plan with objectives, channels, KPIs and 90-day calendar.", gradient: "from-[#EC4899] to-[#7C3AED]" },
   { emoji: "💡", title: "Startup ideas", prompt: "Generate 5 promising startup ideas for me based on current trends and unmet needs.", gradient: "from-[#3B82F6] to-[#22C55E]" },
-  { emoji: "🧠", title: "AI business mentor", prompt: "Be my business mentor — ask me 3 sharp questions to diagnose where I am stuck.", gradient: "from-[#6C63FF] to-[#FF8A00]" },
+  { emoji: "🧠", title: "AI business mentor", prompt: "Be my business mentor — ask me 3 sharp questions to diagnose where I am stuck.", gradient: "from-[#7C3AED] to-[#FF8A00]" },
 ];
 
 const SUGGESTED_PROMPTS = [
@@ -75,10 +75,10 @@ function HeroBackdrop() {
         }} />
       <motion.div animate={{ x: [0, 40, 0], y: [0, -30, 0] }} transition={{ duration: 16, repeat: Infinity }}
         className="absolute -top-24 -left-12 w-[420px] h-[420px] rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, #6C63FF 0%, transparent 70%)", opacity: 0.35 }} />
+        style={{ background: "radial-gradient(circle, #7C3AED 0%, transparent 70%)", opacity: 0.35 }} />
       <motion.div animate={{ x: [0, -30, 0], y: [0, 30, 0] }} transition={{ duration: 20, repeat: Infinity }}
         className="absolute top-24 -right-16 w-[460px] h-[460px] rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, #FF4D94 0%, transparent 70%)", opacity: 0.3 }} />
+        style={{ background: "radial-gradient(circle, #EC4899 0%, transparent 70%)", opacity: 0.3 }} />
       <motion.div animate={{ x: [0, 20, 0], y: [0, 20, 0] }} transition={{ duration: 22, repeat: Infinity }}
         className="absolute bottom-0 left-1/3 w-[500px] h-[500px] rounded-full blur-3xl"
         style={{ background: "radial-gradient(circle, #FF8A00 0%, transparent 70%)", opacity: 0.25 }} />
@@ -100,12 +100,12 @@ function ThinkingBubble() {
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
       className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white flex items-center justify-center shrink-0">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white flex items-center justify-center shrink-0">
         <Bot className="w-4 h-4" />
       </div>
       <div className="rounded-2xl rounded-tl-sm bg-white border border-gray-100 px-4 py-3 flex items-center gap-2">
-        <motion.span className="w-1.5 h-1.5 rounded-full bg-[#6C63FF]" animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 0.8 }} />
-        <motion.span className="w-1.5 h-1.5 rounded-full bg-[#FF4D94]" animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.15 }} />
+        <motion.span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 0.8 }} />
+        <motion.span className="w-1.5 h-1.5 rounded-full bg-[#EC4899]" animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.15 }} />
         <motion.span className="w-1.5 h-1.5 rounded-full bg-[#FF8A00]" animate={{ y: [0, -3, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.3 }} />
         <AnimatePresence mode="wait">
           <motion.span key={idx} initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }}
@@ -145,7 +145,9 @@ export default function WorkspaceHomePage() {
         if (r.data.length > 0) {
           await loadConversation(r.data[0].conversation_id);
         }
-      } catch (e) { /* ignore */ }
+      } catch (error) { 
+        console.error("Failed to load conversations:", error); 
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -155,7 +157,10 @@ export default function WorkspaceHomePage() {
     try {
       const r = await api.get(`/workspace/conversations/${cid}`);
       setMessages(r.data.messages || []);
-    } catch (e) { setMessages([]); }
+    } catch (error) { 
+      console.error("Failed to load active conversation details:", error);
+      setMessages([]); 
+    }
   };
 
   const newConversation = async () => {
@@ -170,7 +175,9 @@ export default function WorkspaceHomePage() {
     try {
       await api.patch(`/workspace/conversations/${cid}`, { title });
       setConversations((cs) => cs.map((c) => c.conversation_id === cid ? { ...c, title } : c));
-    } catch (_) {}
+    } catch (error) {
+      console.error("Failed to rename conversation:", error);
+    }
   };
 
   const deleteConversation = async (cid) => {
@@ -206,9 +213,33 @@ export default function WorkspaceHomePage() {
       setMessages((m) => [...m, r.data.assistant_message]);
       // update title in list
       setConversations((cs) => cs.map((c) => c.conversation_id === cid ? { ...c, title: r.data.title, updated_at: r.data.assistant_message.ts } : c));
-    } catch (e) {
-      toast.error("AI didn't respond — try again.");
-      setMessages((m) => [...m, { role: "assistant", text: "Sorry — I hit a snag. Try sending that again.", ts: new Date().toISOString() }]);
+    } catch (error) {
+      console.error("AI Assistant chat error:", error);
+      const details = error.response?.data?.detail || {};
+      const actualError = details.error || error.message || "AI didn't respond — try again.";
+      toast.error("Generation failed. Check the diagnostics card inside the chat.");
+      
+      const errorDetailsObj = {
+        actualError: actualError,
+        apiStatus: error.response?.status || 500,
+        provider: details.provider || "Unknown",
+        model: details.model || "Unknown",
+        providerStatus: details.provider_status || "Unknown",
+        responseTime: details.response_time || "N/A",
+        requestId: details.request_id || "req_" + Math.random().toString(36).substring(2, 9),
+        developmentMode: true,
+        rawResponse: details.raw_response || ""
+      };
+      
+      setMessages((m) => [
+        ...m,
+        {
+          role: "assistant",
+          text: "error_card",
+          errorDetails: errorDetailsObj,
+          ts: new Date().toISOString()
+        }
+      ]);
     } finally {
       setSending(false);
       requestAnimationFrame(() => { scrollRef.current && (scrollRef.current.scrollTop = scrollRef.current.scrollHeight); });
@@ -290,7 +321,7 @@ export default function WorkspaceHomePage() {
             {conversations.map((c) => (
               <div key={c.conversation_id}
                 className={`group rounded-xl px-3 py-2 cursor-pointer flex items-center justify-between gap-1 ${
-                  c.conversation_id === activeId ? "bg-gradient-to-r from-[#F4F1FF] to-[#FFE9F2] border border-[#6C63FF]/15"
+                  c.conversation_id === activeId ? "bg-gradient-to-r from-[#F4F1FF] to-[#FFE9F2] border border-[#7C3AED]/15"
                                                  : "hover:bg-gray-50 border border-transparent"
                 }`}
                 onClick={() => loadConversation(c.conversation_id)}
@@ -359,7 +390,7 @@ export default function WorkspaceHomePage() {
               <div className="mt-6 flex flex-wrap gap-2">
                 {SUGGESTED_PROMPTS.map((p) => (
                   <button key={p} onClick={() => send(p)}
-                    className="rounded-full px-3.5 py-1.5 text-xs font-medium border border-gray-200 bg-white hover:border-[#6C63FF] hover:text-[#6C63FF] transition"
+                    className="rounded-full px-3.5 py-1.5 text-xs font-medium border border-gray-200 bg-white hover:border-[#7C3AED] hover:text-[#7C3AED] transition"
                     data-testid={`suggested-${p.toLowerCase().replace(/\s+/g, "-")}`}>
                     <Sparkles className="w-3 h-3 inline mr-1" />{p}
                   </button>
@@ -380,7 +411,7 @@ export default function WorkspaceHomePage() {
               {messages.filter((m) => m.role === "user").length >= 1 && !bootstrapping && !bootstrapDone && (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="mt-4 rounded-2xl p-3 flex items-center gap-3 bg-gradient-to-r from-[#F4F1FF] to-[#FFE9F2] border border-white/70">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white flex items-center justify-center"><Rocket className="w-5 h-5" /></div>
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white flex items-center justify-center"><Rocket className="w-5 h-5" /></div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold">Ready to make this real?</p>
                     <p className="text-xs text-gray-600">I'll spin up a workspace from this chat and prep your BI dashboard.</p>
@@ -398,7 +429,7 @@ export default function WorkspaceHomePage() {
             {bootstrapping && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="mt-4 rounded-[20px] p-5 bg-white border border-gray-100 flex items-center gap-3" data-testid="bootstrap-progress">
-                <Loader2 className="w-5 h-5 animate-spin text-[#6C63FF]" />
+                <Loader2 className="w-5 h-5 animate-spin text-[#7C3AED]" />
                 <div>
                   <p className="text-sm font-semibold">Bootstrapping your workspace</p>
                   <p className="text-xs text-gray-500">{bootstrapStep}</p>
@@ -408,7 +439,7 @@ export default function WorkspaceHomePage() {
             {bootstrapDone && (
               <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
                 className="mt-4 rounded-[24px] p-6 relative overflow-hidden text-white"
-                style={{ background: "linear-gradient(135deg, #6C63FF 0%, #FF4D94 55%, #FF8A00 100%)" }}
+                style={{ background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 55%, #FF8A00 100%)" }}
                 data-testid="bootstrap-success">
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", stiffness: 220 }}
                   className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
@@ -463,7 +494,7 @@ export default function WorkspaceHomePage() {
                   </button>
                   {voiceSupported && (
                     <button onClick={() => listening ? stopVoice() : startVoice()}
-                            className={`p-2 rounded-full ${listening ? "bg-[#FF4D94]/10 text-[#FF4D94]" : "hover:bg-gray-100 text-gray-500"}`}
+                            className={`p-2 rounded-full ${listening ? "bg-[#EC4899]/10 text-[#EC4899]" : "hover:bg-gray-100 text-gray-500"}`}
                             aria-label="Voice input" data-testid="chat-mic">
                       {listening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                     </button>
@@ -483,7 +514,7 @@ export default function WorkspaceHomePage() {
         {/* Right: scores + assistant panel */}
         <aside className="col-span-12 lg:col-span-3 space-y-4">
           <div className="rounded-[24px] p-5 text-white relative overflow-hidden"
-            style={{ background: "linear-gradient(135deg, #6C63FF 0%, #FF4D94 55%, #FF8A00 100%)" }}>
+            style={{ background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 55%, #FF8A00 100%)" }}>
             <Sparkles className="w-5 h-5" />
             <p className="mt-2 text-xs uppercase tracking-widest font-bold opacity-90">AI Assistant</p>
             <p className="font-display text-xl font-semibold mt-1">
@@ -522,8 +553,8 @@ export default function WorkspaceHomePage() {
                 { label: "Draft marketing plan",icon: Icons.Megaphone,    to: "/workspace/marketing" },
                 { label: "Analyse competitors", icon: Icons.Search,       to: "/workspace/strategy" },
               ].map((it, i) => (
-                <button key={i} onClick={() => navigate(it.to)} className="w-full text-left rounded-xl border border-gray-100 p-3 hover:border-[#6C63FF]/30 transition flex items-center gap-2.5">
-                  <it.icon className="w-4 h-4 text-[#6C63FF]" />
+                <button key={i} onClick={() => navigate(it.to)} className="w-full text-left rounded-xl border border-gray-100 p-3 hover:border-[#7C3AED]/30 transition flex items-center gap-2.5">
+                  <it.icon className="w-4 h-4 text-[#7C3AED]" />
                   <span className="text-sm font-medium flex-1">{it.label}</span>
                   <ChevronRight className="w-4 h-4 text-gray-300" />
                 </button>
@@ -551,12 +582,12 @@ export default function WorkspaceHomePage() {
             <p className="text-xs text-gray-500 mb-3">Jump straight to a tool.</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: "SWOT",       to: "/workspace/strategy",  icon: Icons.ShieldCheck, c: "from-[#6C63FF] to-[#FF4D94]" },
-                { label: "GTM",        to: "/workspace/strategy",  icon: Icons.Compass,     c: "from-[#3B82F6] to-[#6C63FF]" },
-                { label: "Marketing",  to: "/workspace/marketing", icon: Icons.Megaphone,   c: "from-[#FF4D94] to-[#FF8A00]" },
-                { label: "Brand",      to: "/workspace/marketing", icon: Icons.Palette,     c: "from-[#FF8A00] to-[#FFC145]" },
+                { label: "SWOT",       to: "/workspace/strategy",  icon: Icons.ShieldCheck, c: "from-[#7C3AED] to-[#EC4899]" },
+                { label: "GTM",        to: "/workspace/strategy",  icon: Icons.Compass,     c: "from-[#3B82F6] to-[#7C3AED]" },
+                { label: "Marketing",  to: "/workspace/marketing", icon: Icons.Megaphone,   c: "from-[#EC4899] to-[#FF8A00]" },
+                { label: "Brand",      to: "/workspace/marketing", icon: Icons.Palette,     c: "from-[#FF8A00] to-[#F59E0B]" },
                 { label: "Pitch deck", to: "/workspace/funding",   icon: Icons.Presentation,c: "from-[#22C55E] to-[#3B82F6]" },
-                { label: "VC score",   to: "/workspace/funding",   icon: Icons.Gauge,       c: "from-[#FFC145] to-[#FF4D94]" },
+                { label: "VC score",   to: "/workspace/funding",   icon: Icons.Gauge,       c: "from-[#F59E0B] to-[#EC4899]" },
               ].map((it) => (
                 <button key={it.label} onClick={() => { setOrbOpen(false); navigate(it.to); }}
                   className={`rounded-xl p-3 text-white text-left bg-gradient-to-br ${it.c}`}>
@@ -589,15 +620,63 @@ function MessageBubble({ m, onRegenerate }) {
   if (isUser) {
     return (
       <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white px-4 py-2.5 text-sm leading-relaxed">
+        <div className="max-w-[85%] rounded-2xl rounded-br-sm bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white px-4 py-2.5 text-sm leading-relaxed">
           {m.text}
         </div>
       </motion.div>
     );
   }
+
+  if (m.text === "error_card" && m.errorDetails) {
+    const errorDetails = m.errorDetails;
+    return (
+      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-3">
+        <div className="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+          <Icons.AlertTriangle className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="bg-red-50/70 backdrop-blur-sm border border-red-200/85 rounded-2xl rounded-tl-sm p-5 text-left space-y-3 shadow-sm">
+            <div className="flex items-center justify-between border-b border-red-200 pb-2 flex-wrap gap-1">
+              <span className="font-display font-bold text-xs text-red-700">Development Mode — AI Pipeline Error</span>
+              <span className="text-[9px] bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-bold uppercase">
+                API Status: {errorDetails.apiStatus}
+              </span>
+            </div>
+            <div className="text-[11px] space-y-2.5">
+              <div>
+                <span className="block font-bold text-gray-500 uppercase text-[8px] tracking-wider">Actual Error</span>
+                <span className="block font-mono text-red-700 font-semibold mt-1 break-all bg-red-100/50 p-2 rounded border border-red-100/50">{errorDetails.actualError}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div>
+                  <span className="block font-bold text-gray-500 uppercase text-[8px]">Provider Status</span>
+                  <span className="block font-semibold text-gray-800 mt-0.5">{errorDetails.provider} / {errorDetails.model} ({errorDetails.providerStatus})</span>
+                </div>
+                <div>
+                  <span className="block font-bold text-gray-500 uppercase text-[8px]">Response Time</span>
+                  <span className="block font-semibold text-gray-800 mt-0.5">{errorDetails.responseTime}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="block font-bold text-gray-500 uppercase text-[8px]">Request ID</span>
+                  <span className="block font-mono text-gray-800 mt-0.5">{errorDetails.requestId}</span>
+                </div>
+              </div>
+            </div>
+            {errorDetails.rawResponse && (
+              <div className="pt-1.5">
+                <span className="block font-bold text-gray-500 uppercase text-[8px] mb-1">Raw Response Body</span>
+                <pre className="text-[9px] font-mono bg-gray-900 text-gray-100 p-2 rounded overflow-x-auto max-h-32 shadow-inner">{errorDetails.rawResponse}</pre>
+              </div>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white flex items-center justify-center shrink-0">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white flex items-center justify-center shrink-0">
         <Bot className="w-4 h-4" />
       </div>
       <div className="flex-1 min-w-0">
@@ -609,8 +688,8 @@ function MessageBubble({ m, onRegenerate }) {
         <div className="mt-1.5 flex items-center gap-1 text-gray-400">
           <button onClick={copy} className="p-1.5 hover:bg-gray-50 rounded-md hover:text-gray-700" aria-label="Copy"><Copy className="w-3.5 h-3.5" /></button>
           <button onClick={onRegenerate} className="p-1.5 hover:bg-gray-50 rounded-md hover:text-gray-700" aria-label="Regenerate"><RotateCw className="w-3.5 h-3.5" /></button>
-          <button onClick={() => setLiked(liked === 1 ? 0 : 1)} className={`p-1.5 hover:bg-gray-50 rounded-md ${liked === 1 ? "text-[#2ECC71]" : "hover:text-gray-700"}`} aria-label="Like"><ThumbsUp className="w-3.5 h-3.5" /></button>
-          <button onClick={() => setLiked(liked === -1 ? 0 : -1)} className={`p-1.5 hover:bg-gray-50 rounded-md ${liked === -1 ? "text-[#FF4D94]" : "hover:text-gray-700"}`} aria-label="Dislike"><ThumbsDown className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setLiked(liked === 1 ? 0 : 1)} className={`p-1.5 hover:bg-gray-50 rounded-md ${liked === 1 ? "text-[#22C55E]" : "hover:text-gray-700"}`} aria-label="Like"><ThumbsUp className="w-3.5 h-3.5" /></button>
+          <button onClick={() => setLiked(liked === -1 ? 0 : -1)} className={`p-1.5 hover:bg-gray-50 rounded-md ${liked === -1 ? "text-[#EC4899]" : "hover:text-gray-700"}`} aria-label="Dislike"><ThumbsDown className="w-3.5 h-3.5" /></button>
         </div>
       </div>
     </motion.div>

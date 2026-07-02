@@ -46,15 +46,15 @@ SCHEMAS = {
     "business_model_canvas": """{
   "summary": "1-2 sentence executive summary.",
   "cells": {
-    "customer_segments":      [ "bullet", "bullet", ... 3-5 ],
-    "value_propositions":     [ ... ],
-    "channels":               [ ... ],
-    "customer_relationships": [ ... ],
-    "revenue_streams":        [ ... ],
-    "key_resources":          [ ... ],
-    "key_activities":         [ ... ],
-    "key_partnerships":       [ ... ],
-    "cost_structure":         [ ... ]
+    "customer_segments":      [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "value_propositions":     [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "channels":               [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "customer_relationships": [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "revenue_streams":        [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "key_resources":          [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "key_activities":         [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "key_partnerships":       [ "bullet 1", "bullet 2", ... 5-10 items ],
+    "cost_structure":         [ "bullet 1", "bullet 2", ... 5-10 items ]
   },
   "kpis": [
     { "label": "Target ARPU",        "value": "$420 / yr" },
@@ -88,19 +88,100 @@ SCHEMAS = {
   "positioning": "One-sentence positioning statement.",
   "messaging": [ { "pillar": "...", "line": "..." }, ... 4 items ],
   "channels": [ { "name": "Content + SEO", "priority": "high", "cac_estimate": "$120" }, ... 4 items ],
+  "primary_acquisition_channels": [
+    { "name": "Organic Search (SEO)", "details": "Content hub focused on fleet manager problems.", "priority": "High" },
+    ... 3-5 items
+  ],
+  "launch_strategy": {
+    "strategy": "Launch plan description.",
+    "milestones": ["milestone 1", "milestone 2", "milestone 3"]
+  },
+  "roadmap_90_day": [
+    { "phase": "Days 1-30", "focus": "Launch readiness & beta group feedback.", "actions": ["Set up landing page", "Onboard first 10 beta users"] },
+    { "phase": "Days 31-60", "focus": "Refine core UX & kick off paid ads.", "actions": ["Optimize onboarding flow", "Launch targeted search campaigns"] },
+    { "phase": "Days 61-90", "focus": "Scale organic loops & referral systems.", "actions": ["Deploy developer API docs", "Activate referral program"] }
+  ],
+  "customer_acquisition_funnel": [
+    { "stage": "Awareness", "value": 150000, "description": "SEO blog posts & tech newsletter sponsorships" },
+    { "stage": "Consideration", "value": 35000, "description": "Interactive sandbox demos & documentation reads" },
+    { "stage": "Trial", "value": 8500, "description": "Free tier project creations" },
+    { "stage": "Paid", "value": 1800, "description": "Upgrade to Pro tier subscriptions" },
+    { "stage": "Expansion", "value": 450, "description": "Seat additions & high-volume API expansions" }
+  ],
+  "partnerships": [
+    { "partner_type": "Cloud Hyperscalers", "value_prop": "Co-sell options & credits integration" }
+  ],
+  "community_strategy": {
+    "platform": "Discord & GitHub",
+    "engagement_plan": "Monthly developer office hours & community-driven pull request reviews."
+  },
+  "referral_strategy": {
+    "mechanism": "Developer-to-Developer double-sided credit loop.",
+    "incentives": "$50 API credits for both referrer and referee upon first paid bill."
+  },
+  "pricing_strategy": {
+    "strategy": "Value-based pricing aligning usage with API calls.",
+    "tiers": ["Free Sandbox", "Pro ($29/mo)", "Enterprise SLA usage volume rates"]
+  },
+  "growth_loops": [
+    { "loop_type": "Organic referral loop", "mechanism": "Viral share links generated inside workspace during setup." }
+  ],
   "recommendations": [ "3 imperatives" ]
 }""",
 
     "marketing_plan": """{
   "summary": "1-2 sentence summary.",
   "scores": { "overall": 7.4, "brand": 6, "demand": 8, "content": 7, "retention": 6 },
-  "objectives": [ "...", "...", "..." ],
+  "positioning_statement": "The absolute developer-first platform designed to accelerate EV fleet scaling.",
+  "messaging_pillars": [
+    { "pillar": "Developer Speed", "core_message": "Build and ship EV charging apps in hours, not weeks." }
+  ],
+  "seo_strategy": {
+    "keywords": ["EV fleet management", "charging marketplace APIs"],
+    "pillar_pages": ["The Ultimate Guide to Scaling EV Fleet Charging Infrastructure"]
+  },
+  "content_strategy": {
+    "frequency": "2 technical blog posts per week",
+    "formats": ["Case studies", "Integration tutorials", "Developer sandbox walkthroughs"]
+  },
+  "social_media_strategy": {
+    "platforms": ["LinkedIn & Twitter/X"],
+    "content_themes": ["Developer achievements", "Product velocity updates", "Startup founder advice"]
+  },
+  "paid_ads_strategy": {
+    "channels": ["LinkedIn Conversions", "Google Search Ads"],
+    "budget_allocation": "60% Google Search, 40% LinkedIn Ads"
+  },
+  "email_strategy": {
+    "newsletter_frequency": "Bi-weekly developer digest",
+    "drip_campaigns": ["Welcome & Quickstart drip", "Free-to-Pro conversion sequence"]
+  },
+  "influencer_strategy": {
+    "target_profiles": ["Developer advocates", "SaaS startup influencers"],
+    "engagement_model": "Co-created integration video tutorials & custom sandbox templates"
+  },
+  "launch_campaign_ideas": [
+    { "campaign_name": "Developer Beta Invite", "channel": "Product Hunt + Hacker News" }
+  ],
+  "marketing_calendar_30_day": [
+    { "week": 1, "campaign": "Developer Beta Launch", "channel": "Product Hunt" },
+    { "week": 2, "campaign": "Tech Onboarding Webinar", "channel": "Zoom Webinar" },
+    { "week": 3, "campaign": "Pillar Content Release", "channel": "SEO Blog" },
+    { "week": 4, "campaign": "Retargeting Ads Kickoff", "channel": "Google Display" }
+  ],
+  "weekly_goals": [
+    "Week 1: 500 waitlist signups",
+    "Week 2: 100 sandbox projects created",
+    "Week 3: 50 active daily active builders",
+    "Week 4: 10 upgrade conversions"
+  ],
   "kpis": [
     { "label": "MQLs / mo",   "value": "1,200" },
     { "label": "CAC",         "value": "$240" },
     { "label": "CAC payback", "value": "8 mo" },
     { "label": "NPS target",  "value": "55" }
   ],
+  "recommended_tools": ["HubSpot CRM", "Google Analytics 4", "Klaviyo Email", "Ahrefs for SEO"],
   "channels": [
     { "name": "Content + SEO",       "budget_pct": 25 },
     { "name": "Paid social",         "budget_pct": 20 },
@@ -153,16 +234,17 @@ SCHEMAS = {
 }""",
 
     "one_minute_pitch": """{
-  "summary": "1-2 sentence summary.",
+  "summary": "1-2 sentence executive summary.",
   "duration_sec": 60,
   "sections": [
     { "label": "Hook",        "seconds": 6,  "text": "..." },
     { "label": "Problem",     "seconds": 10, "text": "..." },
     { "label": "Solution",    "seconds": 12, "text": "..." },
-    { "label": "Market",      "seconds": 8,  "text": "..." },
-    { "label": "Business",    "seconds": 8,  "text": "..." },
+    { "label": "Market Opportunity", "seconds": 8, "text": "..." },
     { "label": "Traction",    "seconds": 8,  "text": "..." },
-    { "label": "Ask",         "seconds": 8,  "text": "..." }
+    { "label": "Business Model", "seconds": 8, "text": "..." },
+    { "label": "Why Now",     "seconds": 8,  "text": "..." },
+    { "label": "Closing Ask", "seconds": 8,  "text": "..." }
   ],
   "tips": [ "2-3 delivery tips" ]
 }""",
@@ -171,20 +253,18 @@ SCHEMAS = {
   "summary": "1-2 sentence summary.",
   "score": 7.8,
   "slides": [
-    { "n": 1,  "title": "Cover",            "subtitle": "...", "bullets": [], "speaker_notes": "..." },
+    { "n": 1,  "title": "Cover",            "subtitle": "...", "bullets": ["Founded in 2026", "A developer-first startup OS platform"], "speaker_notes": "..." },
     { "n": 2,  "title": "Problem",          "bullets": ["...","...","..."], "speaker_notes": "..." },
     { "n": 3,  "title": "Solution",         "bullets": [...], "speaker_notes": "..." },
-    { "n": 4,  "title": "Market Opportunity","bullets": [...], "metric": { "label":"TAM","value":"$42B" }, "speaker_notes": "..." },
-    { "n": 5,  "title": "Product",          "bullets": [...], "speaker_notes": "..." },
+    { "n": 4,  "title": "Product Demo",     "bullets": [...], "speaker_notes": "..." },
+    { "n": 5,  "title": "Market Size",      "bullets": [...], "metric": { "label":"TAM","value":"$15B" }, "speaker_notes": "..." },
     { "n": 6,  "title": "Business Model",   "bullets": [...], "speaker_notes": "..." },
-    { "n": 7,  "title": "Competition",      "bullets": [...], "speaker_notes": "..." },
-    { "n": 8,  "title": "Go-to-Market",     "bullets": [...], "speaker_notes": "..." },
-    { "n": 9,  "title": "Traction",         "bullets": [...], "metric": { "label":"MRR","value":"$24K"}, "speaker_notes": "..." },
-    { "n": 10, "title": "Financials",       "bullets": [...], "speaker_notes": "..." },
-    { "n": 11, "title": "Roadmap",          "bullets": [...], "speaker_notes": "..." },
-    { "n": 12, "title": "Team",             "bullets": [...], "speaker_notes": "..." },
-    { "n": 13, "title": "Investment Ask",   "bullets": [...], "metric": { "label":"Raising","value":"$2M"}, "speaker_notes": "..." },
-    { "n": 14, "title": "Thank You",        "subtitle": "Contact + next step", "speaker_notes": "..." }
+    { "n": 7,  "title": "Traction",         "bullets": [...], "metric": { "label":"Developers","value":"5K+"}, "speaker_notes": "..." },
+    { "n": 8,  "title": "Competition",      "bullets": [...], "speaker_notes": "..." },
+    { "n": 9,  "title": "Go-To-Market",     "bullets": [...], "speaker_notes": "..." },
+    { "n": 10, "title": "Financial Projections", "bullets": [...], "speaker_notes": "..." },
+    { "n": 11, "title": "Team",             "bullets": [...], "speaker_notes": "..." },
+    { "n": 12, "title": "Ask",              "bullets": [...], "metric": { "label":"Raising","value":"$500K"}, "speaker_notes": "..." }
   ],
   "recommendations": [ "3 imperatives to improve the deck" ]
 }""",
@@ -195,37 +275,51 @@ SCHEMAS = {
   "recommendation": "WATCH",  // PASS | WATCH | INVEST
   "rationale": "2-sentence reason.",
   "dimensions": [
-    { "key": "Market",    "score": 8, "comment": "..." },
-    { "key": "Product",   "score": 7, "comment": "..." },
-    { "key": "Founder",   "score": 8, "comment": "..." },
-    { "key": "Traction",  "score": 5, "comment": "..." },
-    { "key": "Financial", "score": 6, "comment": "..." },
-    { "key": "Risk",      "score": 4, "comment": "..." }
+    { "key": "Market Size", "score": 8, "comment": "..." },
+    { "key": "Team Strength", "score": 9, "comment": "..." },
+    { "key": "Defensibility", "score": 8, "comment": "..." },
+    { "key": "Traction", "score": 7, "comment": "..." },
+    { "key": "Scalability", "score": 9, "comment": "..." },
+    { "key": "Revenue Potential", "score": 8, "comment": "..." },
+    { "key": "Competition Risk", "score": 6, "comment": "..." },
+    { "key": "Timing", "score": 9, "comment": "..." },
+    { "key": "Overall Fundability", "score": 8.5, "comment": "..." }
   ],
   "strengths":   [ "3 bullets" ],
   "concerns":    [ "3 bullets" ],
-  "next_questions": [ "3 questions a VC would ask next" ]
+  "risks":       [ "3 bullets/risks" ],
+  "next_questions": [ "3 questions a VC would ask next" ],
+  "recommendations": [ "3 recommendations for the founder" ]
 }""",
 
     "customer_persona": """{
   "summary": "1-2 sentence summary.",
   "personas": [
     {
-      "name": "Maya Patel",
-      "role": "Head of Fleet Ops",
-      "age": 34,
-      "income": "$120K",
-      "location": "Bengaluru",
-      "avatar_initial": "M",
+      "name": "Rohit Sharma",
+      "age_range": "28-32",
+      "age": 29,
+      "occupation": "Product Manager",
+      "role": "Product Manager",
+      "location": "Bengaluru, India",
+      "income_level": "₹22 LPA",
+      "income": "₹22 LPA",
+      "avatar_initial": "R",
       "color": "#6C63FF",
-      "goals":      [ "3 goals" ],
-      "pains":      [ "3 pain points" ],
-      "objections": [ "2 objections" ],
-      "buying_behavior": "Short sentence.",
-      "channels":   [ { "name": "LinkedIn", "weight": 40 }, { "name": "Email", "weight": 25 }, { "name": "Events","weight":20 },{ "name":"Search","weight":15 } ],
-      "interests":  [ { "axis":"Pricing","value":9 },{ "axis":"Reliability","value":8 },{ "axis":"Brand","value":5 },{ "axis":"Innovation","value":7 },{ "axis":"Support","value":8 } ]
+      "goals": [ "3 goals" ],
+      "pain_points": [ "3 pain points" ],
+      "pains": [ "3 pain points" ],
+      "buying_triggers": "What triggers buying behavior.",
+      "buying_behavior": "What triggers buying behavior.",
+      "preferred_channels": [ { "name": "LinkedIn", "weight": 50 } ],
+      "channels": [ { "name": "LinkedIn", "weight": 50 } ],
+      "objections": [ "3 objections" ],
+      "favorite_products": [ "Favorite products/tools" ],
+      "quote": "A realistic customer quote.",
+      "interests": [ { "axis": "Pricing", "value": 8 }, { "axis": "Reliability", "value": 9 }, { "axis": "Brand", "value": 6 }, { "axis": "Innovation", "value": 8 }, { "axis": "Support", "value": 9 } ]
     },
-    { ...second persona, distinct }
+    { ...second persona, distinct },
+    { ...third persona, distinct }
   ],
   "recommendations": [ "3 imperatives" ]
 }""",
@@ -233,11 +327,32 @@ SCHEMAS = {
     "competitor_analysis": """{
   "summary": "1-2 sentence summary.",
   "competitors": [
-    { "name": "Acme",    "score": 7.2, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$$",  "market_share": 28 },
-    { "name": "Northwind","score": 6.4, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$$$", "market_share": 18 },
-    { "name": "Globex",  "score": 5.8, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$",   "market_share": 14 },
-    { "name": "Soylent", "score": 5.1, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$$",  "market_share": 9  },
-    { "name": "Initech", "score": 4.6, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$$",  "market_share": 6  }
+    { "name": "Razorpay Payments (Direct)", "score": 8.0, "strengths": ["..."], "weaknesses": ["..."], "pricing": "$$",  "market_share": 35 },
+    ... exactly 8 items (5 direct + 3 indirect)
+  ],
+  "direct_competitors": [
+    {
+      "name": "Razorpay Payments",
+      "website": "https://razorpay.com",
+      "positioning": "Their core market position.",
+      "strengths": ["strength 1", "strength 2"],
+      "weaknesses": ["weakness 1", "weakness 2"],
+      "pricing_model": "Freemium / Subscription / Usage-based",
+      "differentiation_opportunity": "How we can beat them."
+    },
+    ... exactly 5 items
+  ],
+  "indirect_competitors": [
+    {
+      "name": "Firebase",
+      "website": "https://firebase.google.com",
+      "positioning": "Their core market position.",
+      "strengths": ["strength 1", "strength 2"],
+      "weaknesses": ["weakness 1", "weakness 2"],
+      "pricing_model": "Usage scale tiers",
+      "differentiation_opportunity": "How we can beat them."
+    },
+    ... exactly 3 items
   ],
   "features": [
     { "name": "Feature A", "us": true,  "acme": true,  "northwind": false, "globex": true,  "soylent": false, "initech": false },
@@ -254,13 +369,35 @@ SCHEMAS = {
 
 def build_prompt(kind: str, project: dict) -> str:
     schema = SCHEMAS[kind]
+    # Gracefully default null/undefined workspace data fields to avoid crashing (STEP 4)
+    p_name = project.get("name") or "My Startup"
+    p_tagline = project.get("tagline") or ""
+    p_industry = project.get("industry") or ""
+    p_stage = project.get("stage") or "Idea"
+    p_problem = project.get("problem") or ""
+    p_solution = project.get("solution") or ""
+    p_market = project.get("market") or ""
+    p_competitors = project.get("competitors") or ""
+    p_personas = project.get("customer personas") or ""
+    p_strategy = project.get("strategy") or ""
+    p_marketing = project.get("marketing") or ""
+    p_funding = project.get("funding") or ""
+
     return (
         f"You are STUDLYF AI, an expert startup strategist generating data for an executive dashboard.\n\n"
         f"Project:\n"
-        f"- Name: {project.get('name')}\n"
-        f"- Tagline: {project.get('tagline')}\n"
-        f"- Industry: {project.get('industry')}\n"
-        f"- Stage: {project.get('stage')}\n\n"
+        f"- Name: {p_name}\n"
+        f"- Tagline: {p_tagline}\n"
+        f"- Industry: {p_industry}\n"
+        f"- Stage: {p_stage}\n"
+        f"- Problem: {p_problem}\n"
+        f"- Solution: {p_solution}\n"
+        f"- Target Market: {p_market}\n"
+        f"- Competitors: {p_competitors}\n"
+        f"- Customer Personas: {p_personas}\n"
+        f"- Strategy notes: {p_strategy}\n"
+        f"- Marketing notes: {p_marketing}\n"
+        f"- Funding details: {p_funding}\n\n"
         f"Task: Generate a {KIND_LABELS[kind]} for this startup. Output a SINGLE JSON object. "
         f"No prose, no markdown fences, no commentary — just the JSON. "
         f"Match this exact schema (replace example values with high-quality, specific content for the startup):\n\n"

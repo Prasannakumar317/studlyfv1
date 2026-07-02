@@ -8,7 +8,7 @@ import {
 import {
   ShieldCheck, AlertTriangle, Sparkles, Compass, Users, Megaphone, Palette,
   Mic, PiggyBank, Search, ChevronLeft, ChevronRight, Play, Target, TrendingUp,
-  Layers, Globe2, Maximize2, X,
+  Layers, Globe2, Globe, Maximize2, X,
 } from "lucide-react";
 import { Card, KpiCard, ScoreRing, InsightList, COLORS } from "./Primitives";
 
@@ -17,10 +17,10 @@ const empty = (v, alt = "—") => (v == null || v === "" ? alt : v);
 /* ============================ SWOT ============================ */
 export function SwotRenderer({ data }) {
   const quads = [
-    { key: "strengths",     title: "Strengths",     icon: ShieldCheck,  tone: "growth",  color: "#2ECC71" },
-    { key: "weaknesses",    title: "Weaknesses",    icon: AlertTriangle,tone: "warm",    color: "#FF7A18" },
-    { key: "opportunities", title: "Opportunities", icon: Sparkles,     tone: "cool",    color: "#3FA9F5" },
-    { key: "threats",       title: "Threats",       icon: AlertTriangle,tone: "primary", color: "#FF4D94" },
+    { key: "strengths",     title: "Strengths",     icon: ShieldCheck,  tone: "growth",  color: "#22C55E" },
+    { key: "weaknesses",    title: "Weaknesses",    icon: AlertTriangle,tone: "warm",    color: "#A855F7" },
+    { key: "opportunities", title: "Opportunities", icon: Sparkles,     tone: "cool",    color: "#6366F1" },
+    { key: "threats",       title: "Threats",       icon: AlertTriangle,tone: "primary", color: "#EC4899" },
   ];
   return (
     <div className="space-y-5">
@@ -69,7 +69,7 @@ export function SwotRenderer({ data }) {
                 <PolarGrid stroke="#EDEDF3" />
                 <PolarAngleAxis dataKey="axis" tick={{ fontSize: 12, fill: "#6B7280" }} />
                 <PolarRadiusAxis domain={[0, 10]} tick={{ fontSize: 10, fill: "#9CA3AF" }} />
-                <Radar dataKey="value" stroke="#6C63FF" fill="#6C63FF" fillOpacity={0.35} />
+                <Radar dataKey="value" stroke="#7C3AED" fill="#7C3AED" fillOpacity={0.35} />
                 <Tooltip />
               </RadarChart>
             </ResponsiveContainer>
@@ -83,13 +83,13 @@ export function SwotRenderer({ data }) {
 
 /* ============================ Business Model Canvas ============================ */
 const BMC_CELLS = [
-  { key: "key_partnerships",       title: "Key Partnerships",      span: "row-span-2", color: "#6C63FF" },
-  { key: "key_activities",         title: "Key Activities",        color: "#FF4D94" },
-  { key: "value_propositions",     title: "Value Propositions",    span: "row-span-2", color: "#FF7A18" },
-  { key: "customer_relationships", title: "Customer Relationships",color: "#2ECC71" },
-  { key: "customer_segments",      title: "Customer Segments",     span: "row-span-2", color: "#3FA9F5" },
-  { key: "key_resources",          title: "Key Resources",         color: "#FFC145" },
-  { key: "channels",               title: "Channels",              color: "#FF4D94" },
+  { key: "key_partnerships",       title: "Key Partnerships",      span: "row-span-2", color: "#7C3AED" },
+  { key: "key_activities",         title: "Key Activities",        color: "#EC4899" },
+  { key: "value_propositions",     title: "Value Propositions",    span: "row-span-2", color: "#A855F7" },
+  { key: "customer_relationships", title: "Customer Relationships",color: "#22C55E" },
+  { key: "customer_segments",      title: "Customer Segments",     span: "row-span-2", color: "#6366F1" },
+  { key: "key_resources",          title: "Key Resources",         color: "#F59E0B" },
+  { key: "channels",               title: "Channels",              color: "#EC4899" },
 ];
 export function BmcRenderer({ data }) {
   return (
@@ -114,13 +114,13 @@ export function BmcRenderer({ data }) {
             </ul>
           </div>
         ))}
-        <div className="rounded-[20px] bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white p-4 col-span-1 lg:col-span-5">
+        <div className="rounded-[20px] bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white p-4 col-span-1 lg:col-span-5">
           <p className="text-[11px] font-bold uppercase tracking-widest opacity-80">Cost Structure</p>
           <ul className="mt-2 text-sm grid grid-cols-1 md:grid-cols-3 gap-2">
             {(data?.cells?.cost_structure || []).map((b, i) => <li key={i}>• {b}</li>)}
           </ul>
         </div>
-        <div className="rounded-[20px] bg-gradient-to-br from-[#FF7A18] to-[#FFC145] text-white p-4 col-span-1 lg:col-span-5">
+        <div className="rounded-[20px] bg-gradient-to-br from-[#A855F7] to-[#F59E0B] text-white p-4 col-span-1 lg:col-span-5">
           <p className="text-[11px] font-bold uppercase tracking-widest opacity-80">Revenue Streams</p>
           <ul className="mt-2 text-sm grid grid-cols-1 md:grid-cols-3 gap-2">
             {(data?.cells?.revenue_streams || []).map((b, i) => <li key={i}>• {b}</li>)}
@@ -135,7 +135,14 @@ export function BmcRenderer({ data }) {
 
 /* ============================ Go-to-Market ============================ */
 export function GtmRenderer({ data }) {
-  const funnel = (data?.funnel || []).map((f, i) => ({ ...f, fill: COLORS[i % COLORS.length] }));
+  const rawFunnel = data?.customer_acquisition_funnel || data?.funnel || [];
+  const funnel = rawFunnel.map((f, i) => ({
+    ...f,
+    fill: COLORS[i % COLORS.length]
+  }));
+
+  const activeChannels = data?.primary_acquisition_channels || data?.channels || [];
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -146,7 +153,7 @@ export function GtmRenderer({ data }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card title="Ideal customer profile">
+        <Card title="Ideal Customer Profile">
           <p className="font-display text-lg font-semibold">{empty(data?.icp?.title)}</p>
           <ul className="mt-3 space-y-1.5 text-sm text-gray-700">
             <li><b>Industries:</b> {(data?.icp?.industries || []).join(", ") || "—"}</li>
@@ -155,7 +162,7 @@ export function GtmRenderer({ data }) {
             <li><b>Buyer role:</b> {empty(data?.icp?.buyer_role)}</li>
           </ul>
         </Card>
-        <Card title="Segments" subtitle="Share of focus" className="lg:col-span-1">
+        <Card title="Segments" subtitle="Share of focus">
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
               <Pie data={data?.segments || []} dataKey="share" nameKey="name" innerRadius={50} outerRadius={85}>
@@ -166,7 +173,7 @@ export function GtmRenderer({ data }) {
             </PieChart>
           </ResponsiveContainer>
         </Card>
-        <Card title="Funnel" subtitle="Awareness → Expansion">
+        <Card title="Acquisition Funnel" subtitle="Awareness → Expansion">
           <ResponsiveContainer width="100%" height={220}>
             <FunnelChart>
               <Tooltip />
@@ -179,36 +186,146 @@ export function GtmRenderer({ data }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card title="Positioning" className="lg:col-span-1">
-          <p className="text-sm text-gray-700 leading-relaxed">{empty(data?.positioning)}</p>
+        <Card title="Positioning">
+          <p className="text-sm text-gray-700 leading-relaxed font-medium italic">"{empty(data?.positioning || data?.positioning_statement)}"</p>
         </Card>
-        <Card title="Messaging pillars" className="lg:col-span-2">
+        <Card title="Messaging Pillars" className="lg:col-span-2">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {(data?.messaging || []).map((m, i) => (
-              <div key={i} className="rounded-xl border border-gray-100 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#6C63FF]">{m.pillar}</p>
-                <p className="mt-1 text-sm text-gray-800">{m.line}</p>
+            {(data?.messaging || data?.messaging_pillars || []).map((m, i) => (
+              <div key={i} className="rounded-xl border border-gray-100 p-3 bg-gray-50/50">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#7C3AED]">{m.pillar}</p>
+                <p className="mt-1 text-sm text-gray-800 leading-relaxed">{m.line || m.core_message}</p>
               </div>
             ))}
           </div>
         </Card>
       </div>
 
-      <Card title="Channels & CAC">
+      <Card title="Primary Acquisition Channels">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {(data?.channels || []).map((c, i) => (
-            <div key={i} className="rounded-xl border border-gray-100 p-3">
-              <p className="text-sm font-semibold">{c.name}</p>
-              <p className="text-xs text-gray-500 mt-0.5">CAC est. {c.cac_estimate}</p>
-              <span className={`mt-2 inline-block text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full ${
-                c.priority === "high" ? "bg-[#6C63FF]/10 text-[#6C63FF]" :
-                c.priority === "medium" ? "bg-[#FF7A18]/10 text-[#FF7A18]" :
+          {activeChannels.map((c, i) => (
+            <div key={i} className="rounded-xl border border-gray-100 p-4 bg-white shadow-sm">
+              <p className="text-sm font-bold text-gray-900">{c.name || c.channel}</p>
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed">{c.details || "Leveraging high-intent organic builder routes."}</p>
+              {c.cac_estimate && <p className="text-xs text-gray-500 mt-2">CAC est: <span className="font-semibold text-gray-800">{c.cac_estimate}</span></p>}
+              <span className={`mt-3 inline-block text-[9px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${
+                c.priority === "high" || c.priority === "High" ? "bg-[#22C55E]/10 text-[#22C55E]" :
+                c.priority === "medium" || c.priority === "Medium" ? "bg-[#A855F7]/10 text-[#A855F7]" :
                 "bg-gray-100 text-gray-600"
-              }`}>{c.priority}</span>
+              }`}>{c.priority || "Medium"}</span>
             </div>
           ))}
         </div>
       </Card>
+
+      {/* Launch Strategy & Partnerships */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {data?.launch_strategy && (
+          <Card title="Launch Strategy" subtitle="How we scale from zero to one">
+            <p className="text-sm text-gray-700 leading-relaxed font-semibold">{data.launch_strategy.strategy}</p>
+            <div className="mt-4 space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Key Launch Milestones</p>
+              <ul className="space-y-1.5 text-xs text-gray-600">
+                {(data.launch_strategy.milestones || []).map((m, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#7C3AED] shrink-0" />
+                    <span>{m}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Card>
+        )}
+        {data?.partnerships?.length > 0 && (
+          <Card title="Strategic Partnerships" subtitle="Leveraging adjacent integrations">
+            <div className="space-y-3">
+              {data.partnerships.map((p, idx) => (
+                <div key={idx} className="rounded-xl border border-gray-100 p-4 bg-gray-50/50">
+                  <p className="text-sm font-semibold text-gray-900">{p.partner_type}</p>
+                  <p className="text-xs text-gray-600 mt-1 leading-relaxed"><b>Value Proposition:</b> {p.value_prop}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* 90-Day GTM Roadmap */}
+      {data?.roadmap_90_day?.length > 0 && (
+        <Card title="90-Day GTM Roadmap" subtitle="Execution blueprint per phase">
+          <div className="relative border-l-2 border-gray-100 ml-4 pl-6 space-y-6">
+            {data.roadmap_90_day.map((r, idx) => (
+              <div key={idx} className="relative">
+                {/* Timeline node dot */}
+                <div className="absolute -left-[31px] top-1.5 w-4 h-4 rounded-full bg-white border-4 border-[#7C3AED] shadow-sm" />
+                
+                <div className="rounded-2xl border border-gray-100 p-5 bg-gradient-to-br from-white to-gray-50/20 shadow-sm relative">
+                  <div className="absolute top-5 right-5 text-2xl font-display font-bold text-gray-100">0{idx+1}</div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">{r.phase}</p>
+                  <p className="text-sm font-bold text-gray-900 mt-1">{r.focus}</p>
+                  <div className="mt-4 space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Action items</p>
+                    <ul className="space-y-1 text-xs text-gray-600">
+                      {(r.actions || []).map((a, aIdx) => (
+                        <li key={aIdx} className="flex items-start gap-1">
+                          <span className="mt-1 text-[#22C55E]">✓</span>
+                          <span>{a}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Community, Referral & Growth Loops */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {data?.community_strategy && (
+          <Card title="Community Strategy">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Platform</p>
+            <p className="text-sm font-semibold text-gray-900 mt-0.5">{data.community_strategy.platform}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mt-3">Engagement Plan</p>
+            <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{data.community_strategy.engagement_plan}</p>
+          </Card>
+        )}
+        {data?.referral_strategy && (
+          <Card title="Referral Strategy">
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500">Mechanism</p>
+            <p className="text-xs text-gray-700 mt-0.5 leading-relaxed font-semibold">{data.referral_strategy.mechanism}</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mt-3">Incentives</p>
+            <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">{data.referral_strategy.incentives}</p>
+          </Card>
+        )}
+        {data?.growth_loops?.length > 0 && (
+          <Card title="Growth Loops">
+            <div className="space-y-3">
+              {data.growth_loops.map((gl, idx) => (
+                <div key={idx} className="rounded-xl bg-gradient-to-br from-[#F4F1FF] to-[#FFE9F2] p-3 border border-white">
+                  <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">{gl.loop_type}</p>
+                  <p className="text-xs text-gray-700 mt-1 leading-relaxed">{gl.mechanism}</p>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Pricing Strategy */}
+      {data?.pricing_strategy && (
+        <Card title="Pricing Strategy" subtitle="Monetization structure and tiers">
+          <p className="text-sm text-gray-700 leading-relaxed font-semibold">{data.pricing_strategy.strategy}</p>
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            {(data.pricing_strategy.tiers || []).map((t, idx) => (
+              <div key={idx} className="rounded-xl border border-gray-100 p-3.5 bg-gray-50/30 text-center font-semibold text-sm text-gray-800">
+                {t}
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       <InsightList title="AI Recommendations" items={data?.recommendations || []} tone="primary" icon={Sparkles} />
     </div>
@@ -260,7 +377,7 @@ export function MarketingPlanRenderer({ data }) {
               <PolarGrid stroke="#EDEDF3" />
               <PolarAngleAxis dataKey="axis" tick={{ fontSize: 11, fill: "#6B7280" }} />
               <PolarRadiusAxis domain={[0, 10]} tick={{ fontSize: 9 }} />
-              <Radar dataKey="value" stroke="#FF4D94" fill="#FF4D94" fillOpacity={0.35} />
+              <Radar dataKey="value" stroke="#EC4899" fill="#EC4899" fillOpacity={0.35} />
             </RadarChart>
           </ResponsiveContainer>
         </Card>
@@ -269,18 +386,18 @@ export function MarketingPlanRenderer({ data }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card title="Objectives" className="lg:col-span-1">
           <ul className="space-y-2 text-sm text-gray-700">
-            {(data?.objectives || []).map((o, i) => <li key={i} className="flex gap-2"><span className="text-[#6C63FF]">{i+1}.</span> {o}</li>)}
+            {(data?.objectives || []).map((o, i) => <li key={i} className="flex gap-2"><span className="text-[#7C3AED]">{i+1}.</span> {o}</li>)}
           </ul>
         </Card>
         <Card title="Campaign calendar" subtitle="90-day timeline" className="lg:col-span-2">
           <div className="relative pt-4">
-            <div className="absolute left-2 right-2 top-7 h-px bg-gradient-to-r from-[#6C63FF] via-[#FF4D94] to-[#FF7A18]" />
+            <div className="absolute left-2 right-2 top-7 h-px bg-gradient-to-r from-[#7C3AED] via-[#EC4899] to-[#A855F7]" />
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
               {(data?.calendar || []).map((c, i) => (
                 <div key={i} className="relative">
-                  <div className="w-4 h-4 mx-auto rounded-full bg-white border-2 border-[#6C63FF]" />
+                  <div className="w-4 h-4 mx-auto rounded-full bg-white border-2 border-[#7C3AED]" />
                   <div className="mt-3 rounded-xl border border-gray-100 p-3 bg-white">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#6C63FF]">Week {c.week}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[#7C3AED]">Week {c.week}</p>
                     <p className="text-sm font-semibold mt-1">{c.campaign}</p>
                     <p className="text-xs text-gray-500">{c.channel}</p>
                   </div>
@@ -320,7 +437,7 @@ export function BrandRenderer({ data }) {
               <PolarGrid stroke="#EDEDF3" />
               <PolarAngleAxis dataKey="trait" tick={{ fontSize: 11, fill: "#6B7280" }} />
               <PolarRadiusAxis domain={[0, 10]} tick={{ fontSize: 9 }} />
-              <Radar dataKey="value" stroke="#FF4D94" fill="#FF4D94" fillOpacity={0.35} />
+              <Radar dataKey="value" stroke="#EC4899" fill="#EC4899" fillOpacity={0.35} />
             </RadarChart>
           </ResponsiveContainer>
         </Card>
@@ -344,8 +461,8 @@ export function BrandRenderer({ data }) {
           <div className="space-y-2">
             {(data?.voice || []).map((v, i) => (
               <div key={i} className="rounded-xl border border-gray-100 p-3">
-                <p className="text-xs text-[#2ECC71] font-semibold">Do · {v.do}</p>
-                <p className="text-xs text-[#FF4D94] font-semibold mt-1">Don't · {v.dont}</p>
+                <p className="text-xs text-[#22C55E] font-semibold">Do · {v.do}</p>
+                <p className="text-xs text-[#EC4899] font-semibold mt-1">Don't · {v.dont}</p>
               </div>
             ))}
           </div>
@@ -406,7 +523,7 @@ export function PitchRenderer({ data }) {
 
 /* ============================ Pitch Deck ============================ */
 export function PitchDeckRenderer({ data }) {
-  const slides = data?.slides || [];
+  const slides = (data?.slides || []).slice(0, 12);
   const [active, setActive] = useState(0);
   const [present, setPresent] = useState(false);
 
@@ -427,7 +544,7 @@ export function PitchDeckRenderer({ data }) {
           </li>)}
         </ul>
         {s.metric && (
-          <div className="mt-4 inline-block rounded-2xl bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white px-4 py-2">
+          <div className="mt-4 inline-block rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white px-4 py-2">
             <p className="text-[10px] uppercase tracking-widest opacity-80 font-bold">{s.metric.label}</p>
             <p className={`font-display ${big ? "text-2xl" : "text-lg"} font-semibold`}>{s.metric.value}</p>
           </div>
@@ -444,7 +561,7 @@ export function PitchDeckRenderer({ data }) {
         </Card>
         <KpiCard label="Slides" value={slides.length} icon={Layers} gradient="primary" />
         <KpiCard label="Currently viewing" value={`#${active + 1} · ${slide.title}`} icon={Play} gradient="warm" />
-        <button onClick={() => setPresent(true)} className="rounded-[20px] bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white p-5 text-left hover:opacity-95">
+        <button onClick={() => setPresent(true)} className="rounded-[20px] bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white p-5 text-left hover:opacity-95">
           <Maximize2 className="w-5 h-5" />
           <p className="mt-3 font-display text-lg font-semibold">Present</p>
           <p className="text-xs opacity-90">Full-screen deck</p>
@@ -455,7 +572,7 @@ export function PitchDeckRenderer({ data }) {
         <div className="lg:col-span-1 space-y-2 max-h-[70vh] overflow-y-auto no-scrollbar pr-1">
           {slides.map((s, i) => (
             <button key={i} onClick={() => setActive(i)}
-                    className={`w-full text-left rounded-xl p-3 border transition ${i === active ? "border-[#6C63FF]/40 bg-[#F4F1FF]" : "border-gray-100 bg-white hover:border-gray-200"}`}>
+                    className={`w-full text-left rounded-xl p-3 border transition ${i === active ? "border-[#7C3AED]/40 bg-[#F4F1FF]" : "border-gray-100 bg-white hover:border-gray-200"}`}>
               <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">{String(i+1).padStart(2,"0")}</p>
               <p className="text-sm font-semibold mt-0.5 line-clamp-2">{s.title}</p>
             </button>
@@ -499,7 +616,7 @@ export function PitchDeckRenderer({ data }) {
 /* ============================ VC Score ============================ */
 export function VcScoreRenderer({ data }) {
   const rec = (data?.recommendation || "WATCH").toUpperCase();
-  const recColor = rec === "INVEST" ? "bg-[#2ECC71]" : rec === "PASS" ? "bg-[#FF4D94]" : "bg-[#FFC145]";
+  const recColor = rec === "INVEST" ? "bg-[#22C55E]" : rec === "PASS" ? "bg-[#EC4899]" : "bg-[#F59E0B]";
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-start">
@@ -519,7 +636,7 @@ export function VcScoreRenderer({ data }) {
               <PolarGrid stroke="#EDEDF3" />
               <PolarAngleAxis dataKey="axis" tick={{ fontSize: 11, fill: "#6B7280" }} />
               <PolarRadiusAxis domain={[0, 10]} tick={{ fontSize: 9 }} />
-              <Radar dataKey="value" stroke="#6C63FF" fill="#6C63FF" fillOpacity={0.35} />
+              <Radar dataKey="value" stroke="#7C3AED" fill="#7C3AED" fillOpacity={0.35} />
               <Tooltip />
             </RadarChart>
           </ResponsiveContainer>
@@ -542,9 +659,9 @@ export function VcScoreRenderer({ data }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <InsightList title="Strengths"     items={data?.strengths || []}     tone="growth" icon={ShieldCheck} />
-        <InsightList title="Concerns"      items={data?.concerns || []}      tone="warm"   icon={AlertTriangle} />
-        <InsightList title="Next questions" items={data?.next_questions || []} tone="cool" icon={Search} />
+        <InsightList title="Strengths" items={data?.strengths || []} tone="growth" icon={ShieldCheck} />
+        <InsightList title="Risks & Concerns" items={data?.risks || data?.concerns || []} tone="warm" icon={AlertTriangle} />
+        <InsightList title="Investor Recommendations" items={data?.recommendations || data?.next_questions || []} tone="cool" icon={Search} />
       </div>
     </div>
   );
@@ -554,35 +671,70 @@ export function VcScoreRenderer({ data }) {
 export function PersonaRenderer({ data }) {
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {(data?.personas || []).map((p, i) => (
-          <Card key={i} title={`Persona ${i+1}`}>
+          <Card key={i} title={`Persona ${i+1}: ${p.occupation || p.role || "Target Buyer"}`}>
             <div className="flex items-center gap-3">
-              <div className="w-14 h-14 rounded-2xl text-white text-2xl font-display font-semibold flex items-center justify-center"
-                   style={{ background: `linear-gradient(135deg, ${p.color || "#6C63FF"}, ${p.color || "#FF4D94"})` }}>
+              <div className="w-14 h-14 rounded-2xl text-white text-2xl font-display font-semibold flex items-center justify-center shrink-0"
+                   style={{ background: `linear-gradient(135deg, ${p.color || "#7C3AED"}, ${p.color || "#EC4899"})` }}>
                 {p.avatar_initial || p.name?.[0] || "?"}
               </div>
               <div>
                 <p className="font-display text-xl font-semibold">{p.name}</p>
-                <p className="text-xs text-gray-500">{p.role} · {p.age} · {p.location}</p>
-                <p className="text-xs text-[#6C63FF] font-semibold">{p.income}</p>
+                <p className="text-xs text-gray-500">{p.occupation || p.role} · Age {p.age_range || p.age} · {p.location}</p>
+                <p className="text-xs text-[#7C3AED] font-semibold">{p.income_level || p.income}</p>
               </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-              <div><p className="font-bold uppercase tracking-widest text-gray-500">Goals</p><ul className="mt-1 space-y-1">{(p.goals || []).map((g, k) => <li key={k}>• {g}</li>)}</ul></div>
-              <div><p className="font-bold uppercase tracking-widest text-gray-500">Pains</p><ul className="mt-1 space-y-1">{(p.pains || []).map((g, k) => <li key={k}>• {g}</li>)}</ul></div>
-              <div><p className="font-bold uppercase tracking-widest text-gray-500">Objections</p><ul className="mt-1 space-y-1">{(p.objections || []).map((g, k) => <li key={k}>• {g}</li>)}</ul></div>
-              <div><p className="font-bold uppercase tracking-widest text-gray-500">Buying behavior</p><p className="mt-1">{p.buying_behavior}</p></div>
+            {p.quote && (
+              <div className="mt-3 bg-gray-50 border-l-2 border-[#7C3AED] p-2.5 rounded-r-xl">
+                <p className="text-xs italic text-gray-700 leading-relaxed">"{p.quote}"</p>
+              </div>
+            )}
+
+            <div className="mt-4 space-y-3 text-xs">
+              <div>
+                <p className="font-bold uppercase tracking-widest text-gray-500">Goals</p>
+                <ul className="mt-1 space-y-1 text-gray-700">
+                  {(p.goals || []).map((g, k) => <li key={k}>• {g}</li>)}
+                </ul>
+              </div>
+              <div>
+                <p className="font-bold uppercase tracking-widest text-gray-500">Frustrations & Pain Points</p>
+                <ul className="mt-1 space-y-1 text-gray-700">
+                  {(p.pain_points || p.pains || []).map((g, k) => <li key={k}>• {g}</li>)}
+                </ul>
+              </div>
+              <div>
+                <p className="font-bold uppercase tracking-widest text-gray-500">Objections</p>
+                <ul className="mt-1 space-y-1 text-gray-700">
+                  {(p.objections || []).map((g, k) => <li key={k}>• {g}</li>)}
+                </ul>
+              </div>
+              <div>
+                <p className="font-bold uppercase tracking-widest text-gray-500">Buying Triggers</p>
+                <p className="mt-1 text-gray-700 leading-relaxed">{p.buying_triggers || p.buying_behavior}</p>
+              </div>
             </div>
+
+            {p.favorite_products?.length > 0 && (
+              <div className="mt-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Favorite Products</p>
+                <div className="flex flex-wrap gap-1">
+                  {p.favorite_products.map((fp, idx) => (
+                    <span key={idx} className="bg-[#7C3AED]/10 text-[#7C3AED] px-2 py-0.5 rounded text-[10px] font-semibold">{fp}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mt-4 grid grid-cols-2 gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Channels</p>
-                <ResponsiveContainer width="100%" height={140}>
+                <ResponsiveContainer width="100%" height={120}>
                   <PieChart>
-                    <Pie data={p.channels || []} dataKey="weight" nameKey="name" outerRadius={55} innerRadius={28}>
-                      {(p.channels || []).map((_, k) => <Cell key={k} fill={COLORS[k % COLORS.length]} />)}
+                    <Pie data={p.preferred_channels || p.channels || []} dataKey="weight" nameKey="name" outerRadius={45} innerRadius={20}>
+                      {(p.preferred_channels || p.channels || []).map((_, k) => <Cell key={k} fill={COLORS[k % COLORS.length]} />)}
                     </Pie>
                     <Tooltip />
                   </PieChart>
@@ -590,11 +742,11 @@ export function PersonaRenderer({ data }) {
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Interests</p>
-                <ResponsiveContainer width="100%" height={140}>
+                <ResponsiveContainer width="100%" height={120}>
                   <RadarChart data={p.interests || []}>
                     <PolarGrid stroke="#EDEDF3" />
-                    <PolarAngleAxis dataKey="axis" tick={{ fontSize: 9, fill: "#6B7280" }} />
-                    <Radar dataKey="value" stroke={p.color || "#6C63FF"} fill={p.color || "#6C63FF"} fillOpacity={0.35} />
+                    <PolarAngleAxis dataKey="axis" tick={{ fontSize: 8, fill: "#6B7280" }} />
+                    <Radar dataKey="value" stroke={p.color || "#7C3AED"} fill={p.color || "#7C3AED"} fillOpacity={0.35} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
@@ -608,8 +760,71 @@ export function PersonaRenderer({ data }) {
 }
 
 /* ============================ Competitor Analysis ============================ */
+const CompetitorCard = ({ comp }) => (
+  <div className="rounded-2xl border border-gray-100 p-5 bg-white shadow-sm hover:shadow-md transition duration-200">
+    <div className="flex items-center justify-between">
+      <h4 className="font-display font-bold text-base text-gray-900">{comp.name}</h4>
+      {comp.website && (
+        <a href={comp.website} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-[#7C3AED] transition" title="Visit competitor website">
+          <Globe className="w-4 h-4" />
+        </a>
+      )}
+    </div>
+    {(comp.pricing_model || comp.pricing) && (
+      <p className="text-[10px] text-gray-500 font-semibold uppercase mt-1">Pricing: {comp.pricing_model || comp.pricing}</p>
+    )}
+    {comp.positioning && (
+      <p className="text-xs text-gray-700 mt-2 font-medium italic">"{comp.positioning}"</p>
+    )}
+    
+    <div className="mt-4 space-y-3">
+      {comp.strengths?.length > 0 && (
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#22C55E]">Strengths</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-gray-600 list-disc list-inside">
+            {comp.strengths.map((s, idx) => <li key={idx}>{s}</li>)}
+          </ul>
+        </div>
+      )}
+      {comp.weaknesses?.length > 0 && (
+        <div>
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#EC4899]">Weaknesses</p>
+          <ul className="mt-1 space-y-0.5 text-xs text-gray-600 list-disc list-inside">
+            {comp.weaknesses.map((w, idx) => <li key={idx}>{w}</li>)}
+          </ul>
+        </div>
+      )}
+      {comp.differentiation_opportunity && (
+        <div className="pt-2 border-t border-gray-50">
+          <p className="text-[9px] font-bold uppercase tracking-widest text-[#A855F7]">Differentiation Opportunity</p>
+          <p className="text-xs text-gray-700 mt-1 leading-relaxed">{comp.differentiation_opportunity}</p>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
 export function CompetitorRenderer({ data }) {
-  const comps = data?.competitors || [];
+  let comps = data?.competitors || [];
+  if (comps.length === 0 && (data?.direct_competitors || data?.indirect_competitors)) {
+    comps = [
+      ...(data?.direct_competitors || []).map((c) => ({
+        ...c,
+        name: c.name + " (Direct)",
+        score: c.score || 8.0,
+        market_share: c.market_share || 12,
+        pricing: c.pricing || c.pricing_model || "—"
+      })),
+      ...(data?.indirect_competitors || []).map((c) => ({
+        ...c,
+        name: c.name + " (Indirect)",
+        score: c.score || 6.5,
+        market_share: c.market_share || 5,
+        pricing: c.pricing || c.pricing_model || "—"
+      }))
+    ];
+  }
+
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -646,6 +861,27 @@ export function CompetitorRenderer({ data }) {
         </Card>
       </div>
 
+      {/* Detailed Competitors Grid */}
+      {data?.direct_competitors?.length > 0 && (
+        <Card title="Direct Competitors" subtitle="Core players in our immediate space">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.direct_competitors.map((c, i) => (
+              <CompetitorCard key={i} comp={c} />
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {data?.indirect_competitors?.length > 0 && (
+        <Card title="Indirect Competitors" subtitle="Adjacent players and substitute solutions">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.indirect_competitors.map((c, i) => (
+              <CompetitorCard key={i} comp={c} />
+            ))}
+          </div>
+        </Card>
+      )}
+
       {data?.features?.length > 0 && (
         <Card title="Feature comparison" subtitle="Us vs. competitors">
           <div className="overflow-x-auto">
@@ -664,7 +900,7 @@ export function CompetitorRenderer({ data }) {
                     <td className="py-2 font-medium">{f.name}</td>
                     {Object.entries(f).filter(([k]) => k !== "name").map(([k, v]) => (
                       <td key={k} className="text-center py-2">
-                        {v ? <span className="inline-block w-5 h-5 rounded-full bg-[#2ECC71]/15 text-[#2ECC71] text-[11px] font-bold leading-5">✓</span>
+                        {v ? <span className="inline-block w-5 h-5 rounded-full bg-[#22C55E]/15 text-[#22C55E] text-[11px] font-bold leading-5">✓</span>
                            : <span className="inline-block w-5 h-5 rounded-full bg-gray-100 text-gray-400 text-[11px] leading-5">—</span>}
                       </td>
                     ))}

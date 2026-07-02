@@ -40,7 +40,7 @@
     "/app/memory/test_credentials.md"
   ],
   "success_rate": {"backend": "100% (19/19 passed, 1 skipped expected)", "frontend": "100% on critical flows; 2 minor testid naming deviations from spec"},
-  "test_credentials": "session_token=test_session_1782634396190, user_id=user_test_1782634396190, project_id=proj_mqxihr9g (Lumen Labs). Resend-verified inbox: 24r01a67b6@cmrithyderabad.edu.in. Documented in /app/memory/test_credentials.md.",
+  "test_credentials": "session_token=test_session_1782634396190, user_id=user_test_1782634396190, project_id=proj_mqxihr9g (Lumen Labs). Resend-verified inbox: studlyf21@gmail.com. Documented in /app/memory/test_credentials.md.",
   "seed_data_creation": "Verified the seeded test user/session/project already existed in db.users / db.user_sessions / db.projects (no insert needed). Tests created several TEST_*@example.com newsletter subs and ephemeral TEST_Proj_* projects (CRUD-cleaned).",
   "retest_needed": false,
   "main_agent_can_self_test": true,

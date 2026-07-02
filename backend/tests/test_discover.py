@@ -50,12 +50,12 @@ class TestDiscover:
         assert len(items) == 16, f"expected 16 industries got {len(items)}"
         assert all("slug" in i and "name" in i for i in items)
 
-    def test_search_stripe(self, api):
-        r = api.get(f"{BASE_URL}/api/discover/search?q=stripe", timeout=15)
+    def test_search_razorpay(self, api):
+        r = api.get(f"{BASE_URL}/api/discover/search?q=razorpay", timeout=15)
         assert r.status_code == 200
         items = r.json().get("items") or []
         assert len(items) >= 1
-        assert any("stripe" in (it.get("name") or "").lower() for it in items)
+        assert any("razorpay" in (it.get("name") or "").lower() for it in items)
 
     def test_search_fintech_multiple(self, api):
         r = api.get(f"{BASE_URL}/api/discover/search?q=fintech", timeout=15)
@@ -67,11 +67,11 @@ class TestDiscover:
         r = api.get(f"{BASE_URL}/api/discover/search?q=", timeout=10)
         assert r.status_code == 422
 
-    def test_company_stripe(self, api):
-        r = api.get(f"{BASE_URL}/api/discover/company/stripe", timeout=15)
+    def test_company_razorpay(self, api):
+        r = api.get(f"{BASE_URL}/api/discover/company/razorpay", timeout=15)
         assert r.status_code == 200
         data = r.json()
-        assert data["name"].lower() == "stripe"
+        assert data["name"].lower() == "razorpay"
         for k in ("name", "description", "industry", "location", "logo", "website"):
             assert k in data
 
@@ -112,6 +112,16 @@ class TestRegression:
         email = f"news_phase5_{uuid.uuid4().hex[:8]}@example.com"
         r = api.post(f"{BASE_URL}/api/newsletter", json={"email": email}, timeout=10)
         assert r.status_code in (200, 201)
+
+    def test_contact_validation(self, api):
+        import uuid
+        email = f"test_contact_{uuid.uuid4().hex[:8]}@example.com"
+        # Test missing name
+        r_invalid = api.post(f"{BASE_URL}/api/contact", json={"email": email, "subject": "a", "message": "b"}, timeout=10)
+        assert r_invalid.status_code == 422
+        # Test invalid email
+        r_invalid_email = api.post(f"{BASE_URL}/api/contact", json={"name": "A", "email": "invalid-email", "subject": "a", "message": "b"}, timeout=10)
+        assert r_invalid_email.status_code == 422
 
     def test_auth_me_unauth(self, api):
         r = api.get(f"{BASE_URL}/api/auth/me", timeout=10)

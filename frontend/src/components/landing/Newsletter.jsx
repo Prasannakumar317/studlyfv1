@@ -43,14 +43,14 @@ export default function Newsletter() {
           style={{ background: "linear-gradient(135deg, #FFF 0%, #F4F1FF 60%, #FFE9F2 100%)" }}
         >
           <div className="absolute -top-32 -right-20 w-[420px] h-[420px] rounded-full blob"
-               style={{ background: "radial-gradient(circle, #6C63FF 0%, transparent 70%)", opacity: 0.35 }} />
+               style={{ background: "radial-gradient(circle, #7C3AED 0%, transparent 70%)", opacity: 0.35 }} />
           <div className="absolute -bottom-24 -left-10 w-[360px] h-[360px] rounded-full blob"
-               style={{ background: "radial-gradient(circle, #FF7A18 0%, transparent 70%)", opacity: 0.25 }} />
+               style={{ background: "radial-gradient(circle, #A855F7 0%, transparent 70%)", opacity: 0.25 }} />
 
           <div className="relative grid lg:grid-cols-2 gap-10 items-center">
             <div>
               <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-xs font-semibold text-gray-700">
-                <Mail className="w-3.5 h-3.5 text-[#6C63FF]" /> Weekly newsletter
+                <Mail className="w-3.5 h-3.5 text-[#7C3AED]" /> Weekly newsletter
               </span>
               <h2 className="mt-5 font-display text-3xl md:text-5xl font-semibold tracking-tighter text-gray-900">
                 Get the <span className="brand-gradient-text">founder briefing</span>.
@@ -64,7 +64,7 @@ export default function Newsletter() {
               <input
                 type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@startup.com"
-                className="flex-1 px-5 py-4 rounded-full bg-white border border-gray-200 focus:outline-none focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/20 text-sm"
+                className="flex-1 px-5 py-4 rounded-full bg-white border border-gray-200 focus:outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/20 text-sm"
                 data-testid="newsletter-email"
               />
               <button

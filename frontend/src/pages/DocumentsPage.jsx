@@ -15,7 +15,7 @@ export default function DocumentsPage() {
     if (!current) return;
     api.get("/workspace/generations", { params: { project_id: current.project_id } })
       .then((r) => { setDocs(r.data); setActive(r.data[0] || null); })
-      .catch(() => {});
+      .catch((error) => { console.error("Failed to fetch generations:", error); });
   }, [current?.project_id]);
 
   const filtered = docs.filter((d) => d.label.toLowerCase().includes(q.toLowerCase()));
@@ -37,7 +37,7 @@ export default function DocumentsPage() {
   return (
     <div data-testid="documents-page">
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-[#6C63FF]">Workspace</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">Workspace</p>
         <h1 className="mt-1 font-display text-3xl md:text-4xl font-semibold tracking-tighter">Documents</h1>
         <p className="mt-2 text-gray-600">Every AI-generated visual report, in one place.</p>
       </div>
@@ -45,13 +45,13 @@ export default function DocumentsPage() {
       <div className="mt-6 relative max-w-sm">
         <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search documents…"
-               className="w-full pl-9 pr-3 py-2.5 rounded-full border border-gray-200 text-sm outline-none focus:border-[#6C63FF]"
+               className="w-full pl-9 pr-3 py-2.5 rounded-full border border-gray-200 text-sm outline-none focus:border-[#7C3AED]"
                data-testid="documents-search" />
       </div>
 
       {docs.length === 0 ? (
         <div className="mt-10 rounded-[24px] border border-dashed border-gray-200 p-10 text-center bg-white">
-          <FileText className="w-7 h-7 mx-auto text-[#6C63FF]" />
+          <FileText className="w-7 h-7 mx-auto text-[#7C3AED]" />
           <p className="mt-3 font-display text-lg font-semibold">No documents yet</p>
           <p className="text-sm text-gray-500">Generate one from Strategy, Marketing or Funding.</p>
         </div>
@@ -60,7 +60,7 @@ export default function DocumentsPage() {
           <div className="lg:col-span-1 space-y-2 max-h-[70vh] overflow-y-auto no-scrollbar pr-1">
             {filtered.map((d) => (
               <button key={d.generation_id} onClick={() => setActive(d)}
-                className={`w-full text-left rounded-xl p-3 border ${active?.generation_id === d.generation_id ? "border-[#6C63FF]/40 bg-[#F4F1FF]" : "border-gray-100 bg-white hover:border-gray-200"}`}
+                className={`w-full text-left rounded-xl p-3 border ${active?.generation_id === d.generation_id ? "border-[#7C3AED]/40 bg-[#F4F1FF]" : "border-gray-100 bg-white hover:border-gray-200"}`}
                 data-testid={`doc-${d.generation_id}`}>
                 <p className="text-sm font-semibold">{d.label}</p>
                 <p className="text-[11px] text-gray-500 mt-0.5">{new Date(d.created_at).toLocaleString()}</p>

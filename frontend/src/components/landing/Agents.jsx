@@ -57,8 +57,8 @@ export default function Agents() {
                 </div>
                 <p className="mt-4 text-center text-sm font-semibold text-gray-900">{a.name}</p>
                 <p className="text-center text-xs text-gray-500">{a.role}</p>
-                <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold text-[#2ECC71]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71] animate-pulse" />
+                <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-semibold text-[#22C55E]">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E] animate-pulse" />
                   ACTIVE
                 </div>
               </motion.div>

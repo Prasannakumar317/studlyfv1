@@ -63,7 +63,7 @@ export default function DashboardHomePage() {
     <div data-testid="dashboard-home">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#6C63FF]">Dashboard</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">Dashboard</p>
           <h1 className="mt-1 font-display text-3xl md:text-4xl font-semibold tracking-tighter">
             Welcome back, {user?.name?.split(" ")[0] || "Founder"}.
           </h1>
@@ -78,7 +78,7 @@ export default function DashboardHomePage() {
       <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
           className="md:col-span-1 rounded-[24px] p-6 text-white relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #6C63FF 0%, #FF4D94 55%, #FF7A18 100%)" }}>
+          style={{ background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 55%, #A855F7 100%)" }}>
           <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-white/20 blur-3xl" />
           <p className="relative text-[11px] uppercase tracking-widest font-bold opacity-80">Overall AI Score</p>
           <p className="relative mt-2 font-display text-6xl font-semibold tracking-tighter">
@@ -146,22 +146,22 @@ export default function DashboardHomePage() {
                 const Icon = KIND_ICON[g.kind] || Sparkles;
                 return (
                   <button key={g.generation_id} onClick={() => navigate(KIND_TO_ROUTE[g.kind] || "/workspace/strategy")}
-                    className="group text-left rounded-2xl border border-gray-100 p-4 hover:border-[#6C63FF]/30 hover:bg-[#F4F1FF]/40 transition flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white flex items-center justify-center">
+                    className="group text-left rounded-2xl border border-gray-100 p-4 hover:border-[#7C3AED]/30 hover:bg-[#F4F1FF]/40 transition flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white flex items-center justify-center">
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold">{g.label}</p>
                       <p className="text-[11px] text-gray-500 mt-0.5">{new Date(g.created_at).toLocaleString()}</p>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#6C63FF] mt-2" />
+                    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#7C3AED] mt-2" />
                   </button>
                 );
               })}
             </div>
           ) : (
             <div className="text-center py-10">
-              <Sparkles className="w-7 h-7 mx-auto text-[#6C63FF]" />
+              <Sparkles className="w-7 h-7 mx-auto text-[#7C3AED]" />
               <p className="mt-3 font-display text-lg font-semibold">No outputs yet</p>
               <p className="text-sm text-gray-500">Head to Strategy, Marketing or Funding to generate your first visual dashboard.</p>
             </div>
@@ -171,13 +171,13 @@ export default function DashboardHomePage() {
         <Card title="Suggested next" subtitle="AI playbook">
           <div className="space-y-2.5">
             {[
-              { label: "Run SWOT analysis", to: "/workspace/strategy", color: "#6C63FF" },
-              { label: "Generate VC score", to: "/workspace/funding", color: "#FF4D94" },
-              { label: "Draft marketing plan", to: "/workspace/marketing", color: "#FF7A18" },
-              { label: "Build pitch deck", to: "/workspace/funding", color: "#2ECC71" },
+              { label: "Run SWOT analysis", to: "/workspace/strategy", color: "#7C3AED" },
+              { label: "Generate VC score", to: "/workspace/funding", color: "#EC4899" },
+              { label: "Draft marketing plan", to: "/workspace/marketing", color: "#A855F7" },
+              { label: "Build pitch deck", to: "/workspace/funding", color: "#22C55E" },
             ].map((it, i) => (
               <button key={i} onClick={() => navigate(it.to)}
-                className="w-full text-left rounded-xl border border-gray-100 p-3 hover:border-[#6C63FF]/30 transition flex items-center justify-between">
+                className="w-full text-left rounded-xl border border-gray-100 p-3 hover:border-[#7C3AED]/30 transition flex items-center justify-between">
                 <span className="flex items-center gap-2 text-sm font-medium text-gray-800">
                   <span className="w-2 h-2 rounded-full" style={{ background: it.color }} /> {it.label}
                 </span>

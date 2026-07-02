@@ -18,6 +18,8 @@ import DocumentsPage from "./pages/DocumentsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { CompanyDetailPage, DiscoverListPage } from "./pages/DiscoverPages";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
 
 import "./App.css";
 
@@ -120,6 +122,8 @@ function AppRouter() {
           </ProtectedRoute>
         }
       />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
       <Route path="/discover" element={<DiscoverListPage route="/discover" />} />
       <Route path="/discover/blog" element={<DiscoverListPage route="/discover/blog" />} />
       <Route path="/discover/lists" element={<DiscoverListPage route="/discover/lists" />} />

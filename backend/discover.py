@@ -1,17 +1,14 @@
-"""Discover endpoints — proxy + cache for YC companies and Hacker News stories.
+"""Discover endpoints — curated Indian startups, incubators, VC firms, and news.
 No API keys required. Caches in-memory for 1 hour.
 """
 import os
 import time
 import json
-import asyncio
 import logging
 import re
-import email.utils
-import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
-import httpx
 from fastapi import APIRouter, HTTPException, Query
+from startup_data import get_or_generate_profile
 
 logger = logging.getLogger(__name__)
 
@@ -33,126 +30,524 @@ def _set_cached(key: str, data):
     _cache[key] = {"t": time.time(), "data": data}
 
 
-# Curated industry list (matches user spec)
+# Curated Indian industry list
 INDUSTRIES = [
-    {"slug": "ai-ml",           "name": "AI/ML",            "yc_tag": "AI"},
-    {"slug": "saas",            "name": "SaaS",             "yc_tag": "SaaS"},
-    {"slug": "fintech",         "name": "Fintech",          "yc_tag": "Fintech"},
-    {"slug": "healthcare",      "name": "Healthcare",       "yc_tag": "Healthcare"},
-    {"slug": "cybersecurity",   "name": "Cyber Security",   "yc_tag": "Security"},
-    {"slug": "dev-tools",       "name": "Developer Tools",  "yc_tag": "Developer Tools"},
-    {"slug": "ecommerce",       "name": "E-commerce",       "yc_tag": "E-commerce"},
-    {"slug": "enterprise",      "name": "Enterprise",       "yc_tag": "Enterprise"},
-    {"slug": "biotech",         "name": "Biotech",          "yc_tag": "Biotech"},
-    {"slug": "web3",            "name": "Web3 / Crypto",    "yc_tag": "Crypto / Web3"},
-    {"slug": "logistics",       "name": "Logistics",        "yc_tag": "Logistics"},
-    {"slug": "edtech",          "name": "Edtech",           "yc_tag": "Education"},
-    {"slug": "consumer",        "name": "Consumer",         "yc_tag": "Consumer"},
-<<<<<<< HEAD
-    {"slug": "climatetech",     "name": "Climate Tech",     "yc_tag": "Climate"},
-    {"slug": "robotics",        "name": "Robotics",         "yc_tag": "Robotics"},
-    {"slug": "deeptech",        "name": "Deep Tech",        "yc_tag": "Hard Tech / Deep Tech"},
-=======
-    {"slug": "climate-tech",    "name": "Climate Tech",     "yc_tag": "Climate"},
-    {"slug": "robotics",        "name": "Robotics",         "yc_tag": "Robotics"},
-    {"slug": "deep-tech",       "name": "Deep Tech",        "yc_tag": "Deep Tech"},
+    {"slug": "fintech",         "name": "Fintech"},
+    {"slug": "ecommerce",       "name": "E-commerce"},
+    {"slug": "edtech",          "name": "Edtech"},
+    {"slug": "saas",            "name": "SaaS"},
+    {"slug": "logistics",       "name": "Logistics"},
+    {"slug": "healthcare",      "name": "HealthTech"},
+    {"slug": "consumer",        "name": "FoodTech & Consumer"},
+    {"slug": "mobility",        "name": "Mobility"},
+    {"slug": "ai-ml",           "name": "AI Startups"},
+    {"slug": "enterprise",      "name": "Enterprise SaaS"},
+    {"slug": "cybersecurity",   "name": "Cyber Security"},
+    {"slug": "dev-tools",       "name": "Developer Tools"},
+    {"slug": "agritech",        "name": "Agritech"},
+    {"slug": "climatetech",     "name": "Climate Tech"},
+    {"slug": "biotech",         "name": "Biotech"},
+    {"slug": "deeptech",        "name": "Deep Tech"},
 ]
 
-
-# Curated incubators / accelerators (real, well-known programs)
+# Curated Indian Incubators / Accelerators
 INCUBATORS = [
-    {"name": "Y Combinator",   "domain": "ycombinator.com",   "industry": "Accelerator", "location": "Mountain View, CA", "description": "The original startup accelerator — Stripe, Airbnb, Dropbox."},
-    {"name": "Techstars",      "domain": "techstars.com",     "industry": "Accelerator", "location": "Boulder, CO",       "description": "Worldwide network helping founders succeed."},
-    {"name": "500 Global",     "domain": "500.co",            "industry": "Accelerator", "location": "San Francisco, CA", "description": "Multi-stage venture capital firm and accelerator."},
-    {"name": "Antler",         "domain": "antler.co",         "industry": "Incubator",   "location": "Singapore",         "description": "Day-zero VC backing exceptional founders."},
-    {"name": "Entrepreneur First","domain":"joinef.com",       "industry": "Talent Investor","location":"London, UK",     "description": "Builds startups by investing in individuals."},
-    {"name": "Plug and Play",  "domain": "plugandplaytechcenter.com","industry":"Accelerator","location":"Sunnyvale, CA","description": "Innovation platform connecting startups & corporations."},
+    {"name": "Startup India Hub", "domain": "startupindia.gov.in", "description": "Government of India's flagship initiative to support and foster startup growth.", "industry": "Government Hub", "location": "New Delhi, India", "founded_year": 2016},
+    {"name": "CIIE.CO (IIM Ahmedabad)", "domain": "ciie.co", "description": "The Innovation Continuum at IIM Ahmedabad, backing fearless entrepreneurs.", "industry": "Academic Incubator", "location": "Ahmedabad, India", "founded_year": 2002},
+    {"name": "IIT Madras Incubation Cell", "domain": "incubation.iitm.ac.in", "description": "India's leading deep-tech incubator at IIT Madras.", "industry": "Deep-Tech Incubator", "location": "Chennai, India", "founded_year": 2013},
+    {"name": "T-Hub Hyderabad", "domain": "t-hub.co", "description": "World's largest technology startup incubator and ecosystem enabler.", "industry": "Tech Incubator", "location": "Hyderabad, India", "founded_year": 2015},
+    {"name": "Indian Angel Network", "domain": "indianangelnetwork.com", "description": "India's first and largest angel investor group backing early-stage startups.", "industry": "Angel Network", "location": "New Delhi, India", "founded_year": 2006},
+    {"name": "NSRCEL (IIM Bangalore)", "domain": "nsrcel.org", "description": "Incubator at IIM Bangalore fostering entrepreneurial ideas.", "industry": "Academic Incubator", "location": "Bengaluru, India", "founded_year": 2000}
 ]
 
-
-# Curated VC firms
+# Curated Indian VC Firms
 VC_FIRMS = [
-    {"name": "Sequoia Capital","domain":"sequoiacap.com","industry":"Venture Capital","location":"Menlo Park, CA","description":"Helping daring founders build legendary companies."},
-    {"name": "Andreessen Horowitz","domain":"a16z.com","industry":"Venture Capital","location":"Menlo Park, CA","description":"Software is eating the world — backing the builders."},
-    {"name": "Accel",          "domain":"accel.com","industry":"Venture Capital","location":"Palo Alto, CA","description":"Partnering with exceptional founders globally."},
-    {"name": "Benchmark",      "domain":"benchmark.com","industry":"Venture Capital","location":"San Francisco, CA","description":"Early-stage VC behind eBay, Uber, Snap."},
-    {"name": "Founders Fund",  "domain":"foundersfund.com","industry":"Venture Capital","location":"San Francisco, CA","description":"Backing transformational companies."},
-    {"name": "Lightspeed Venture Partners","domain":"lsvp.com","industry":"Venture Capital","location":"Menlo Park, CA","description":"Helping bold entrepreneurs build great companies."},
-    {"name": "Index Ventures", "domain":"indexventures.com","industry":"Venture Capital","location":"London, UK","description":"International VC — Discord, Figma, Notion."},
-    {"name": "General Catalyst","domain":"generalcatalyst.com","industry":"Venture Capital","location":"Cambridge, MA","description":"Long-term partners to category-defining founders."},
->>>>>>> 63e1d999176753dd73679a749467ffa04b10ecae
+    {"name": "Peak XV Partners", "domain": "peakxv.com", "description": "Leading venture capital firm (formerly Sequoia India & SEA) backing exceptional founders.", "industry": "Venture Capital", "location": "Bengaluru, India", "founded_year": 2006},
+    {"name": "Blume Ventures", "domain": "blume.vc", "description": "Early-stage tech-focused venture capital firm backing ambitious startups.", "industry": "Venture Capital", "location": "Mumbai, India", "founded_year": 2010},
+    {"name": "Elevation Capital", "domain": "elevationcapital.com", "description": "Early-stage VC backing consumer, SaaS, and fintech founders.", "industry": "Venture Capital", "location": "Gurugram, India", "founded_year": 2002},
+    {"name": "Matrix Partners India", "domain": "matrixpartners.in", "description": "Early-stage VC backing consumer, enterprise and fintech startups.", "industry": "Venture Capital", "location": "Bengaluru, India", "founded_year": 2006},
+    {"name": "Kalaari Capital", "domain": "kalaari.com", "description": "Early-stage technology-focused venture capital firm.", "industry": "Venture Capital", "location": "Bengaluru, India", "founded_year": 2006},
+    {"name": "Accel India", "domain": "accel.com", "description": "Partnering with exceptional founders from inception to growth.", "industry": "Venture Capital", "location": "Bengaluru, India", "founded_year": 2008},
+    {"name": "Nexus Venture Partners", "domain": "nexusvp.com", "description": "Pioneering product-first venture capital investing in India and US.", "industry": "Venture Capital", "location": "Mumbai, India", "founded_year": 2006},
+    {"name": "Chiratae Ventures", "domain": "chiratae.com", "description": "Leading tech-focused venture capital firm in India.", "industry": "Venture Capital", "location": "Bengaluru, India", "founded_year": 2006}
 ]
 
-
-# Curated "trending" override (used when YC fetch fails or to feature well-known companies)
+# Curated Indian Startups (ONLY India-based / founded)
 CURATED_STARTUPS = [
-    {"name": "Stripe", "domain": "stripe.com", "industry": "Fintech", "location": "San Francisco, CA", "description": "Payments infrastructure for the internet."},
-    {"name": "OpenAI", "domain": "openai.com", "industry": "AI/ML", "location": "San Francisco, CA", "description": "Frontier AI research and product company."},
-    {"name": "Anthropic", "domain": "anthropic.com", "industry": "AI/ML", "location": "San Francisco, CA", "description": "AI safety company building Claude."},
-    {"name": "Rippling", "domain": "rippling.com", "industry": "SaaS", "location": "San Francisco, CA", "description": "All-in-one HR, IT, and finance platform."},
-    {"name": "Figma", "domain": "figma.com", "industry": "Design / SaaS", "location": "San Francisco, CA", "description": "Collaborative interface design platform."},
-    {"name": "Notion", "domain": "notion.so", "industry": "SaaS", "location": "San Francisco, CA", "description": "All-in-one workspace for notes, docs and tasks."},
-    {"name": "Canva", "domain": "canva.com", "industry": "Design / SaaS", "location": "Sydney, AU", "description": "Visual design platform for everyone."},
-    {"name": "Databricks", "domain": "databricks.com", "industry": "AI/ML", "location": "San Francisco, CA", "description": "The data and AI lakehouse platform."},
-    {"name": "Vercel", "domain": "vercel.com", "industry": "Developer Tools", "location": "San Francisco, CA", "description": "Frontend cloud for building & shipping web apps."},
-    {"name": "Linear", "domain": "linear.app", "industry": "SaaS", "location": "Remote", "description": "Issue tracking and product planning, beautifully designed."},
     # Fintech
-    {"name": "Ramp",   "domain": "ramp.com",   "industry": "Fintech", "location": "New York, NY",      "description": "Corporate cards and spend management."},
-    {"name": "Brex",   "domain": "brex.com",   "industry": "Fintech", "location": "San Francisco, CA", "description": "Cards, banking and bill pay for startups."},
-    {"name": "Mercury","domain": "mercury.com","industry": "Fintech", "location": "San Francisco, CA", "description": "Banking built for ambitious companies."},
-    {"name": "Plaid",  "domain": "plaid.com",  "industry": "Fintech", "location": "San Francisco, CA", "description": "Financial connectivity for apps and services."},
-    # AI/ML
-    {"name": "Perplexity", "domain": "perplexity.ai", "industry": "AI/ML", "location": "San Francisco, CA", "description": "Answer engine for the internet."},
-    {"name": "Mistral AI", "domain": "mistral.ai",   "industry": "AI/ML", "location": "Paris, FR",         "description": "Open and portable generative AI models."},
-    {"name": "Hugging Face", "domain": "huggingface.co", "industry": "AI/ML", "location": "New York, NY",  "description": "The AI community building the future."},
-    # Developer Tools
-    {"name": "GitHub",    "domain": "github.com",    "industry": "Developer Tools", "location": "San Francisco, CA", "description": "Where the world builds software."},
-    {"name": "Supabase",  "domain": "supabase.com",  "industry": "Developer Tools", "location": "Remote", "description": "The open-source Firebase alternative."},
-    {"name": "Cloudflare","domain": "cloudflare.com","industry": "Developer Tools", "location": "San Francisco, CA", "description": "Connectivity cloud for the Internet."},
-    # Cybersecurity
-    {"name": "Wiz",        "domain": "wiz.io",        "industry": "Cyber Security", "location": "New York, NY",      "description": "Cloud security made simple."},
-    {"name": "1Password",  "domain": "1password.com", "industry": "Cyber Security", "location": "Toronto, CA",       "description": "Password manager for teams and families."},
-    # Healthcare / Biotech
-    {"name": "Tempus",   "domain": "tempus.com",     "industry": "Healthcare", "location": "Chicago, IL", "description": "AI-enabled precision medicine."},
-    {"name": "Moderna",  "domain": "modernatx.com",  "industry": "Biotech",    "location": "Cambridge, MA","description": "mRNA medicines for a new generation."},
-    # E-commerce / Consumer
-    {"name": "Shopify",  "domain": "shopify.com", "industry": "E-commerce", "location": "Ottawa, CA",       "description": "Commerce platform for ambitious entrepreneurs."},
-    {"name": "Airbnb",   "domain": "airbnb.com",  "industry": "Consumer",   "location": "San Francisco, CA","description": "Belong anywhere. Hosts, homes and experiences."},
-    # Enterprise
-    {"name": "Snowflake","domain": "snowflake.com","industry": "Enterprise", "location": "Bozeman, MT",     "description": "The AI data cloud."},
+    {
+        "name": "Razorpay",
+        "domain": "razorpay.com",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "Leading payments solution for Indian businesses to accept, process and disburse payments.",
+        "founded_year": 2014,
+        "stage": "Series G (Unicorn)",
+        "funding": "$800M",
+        "tags": ["Fintech", "Unicorn", "Trending", "Fast Growing"]
+    },
+    {
+        "name": "CRED",
+        "domain": "cred.club",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "Premium members-only platform rewarding credit card bill payments with exclusive perks.",
+        "founded_year": 2018,
+        "stage": "Series F (Unicorn)",
+        "funding": "$800M",
+        "tags": ["Fintech", "Unicorn", "Fast Growing", "Trending"]
+    },
+    {
+        "name": "Zerodha",
+        "domain": "zerodha.com",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "India's largest stock broker by active clients, offering low-cost brokerage and investment platforms.",
+        "founded_year": 2010,
+        "stage": "Bootstrapped (Unicorn)",
+        "funding": "N/A",
+        "tags": ["Fintech", "Unicorn", "Trending"]
+    },
+    {
+        "name": "Groww",
+        "domain": "groww.in",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "User-friendly investment platform offering direct mutual funds, stocks, ETFs, and wealth management.",
+        "founded_year": 2016,
+        "stage": "Series E (Unicorn)",
+        "funding": "$390M",
+        "tags": ["Fintech", "Unicorn", "Fast Growing"]
+    },
+    {
+        "name": "PhonePe",
+        "domain": "phonepe.com",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "Leading UPI and digital payments platform offering recharges, utility bills, and insurance.",
+        "founded_year": 2015,
+        "stage": "Late Stage (Unicorn)",
+        "funding": "$1.2B",
+        "tags": ["Fintech", "Unicorn", "Trending"]
+    },
+    {
+        "name": "BharatPe",
+        "domain": "bharatpe.com",
+        "industry": "Fintech",
+        "location": "New Delhi, India",
+        "description": "Empowers small merchants with unified QR codes, merchant loans, and digital ledger solutions.",
+        "founded_year": 2018,
+        "stage": "Series E (Unicorn)",
+        "funding": "$650M",
+        "tags": ["Fintech", "Unicorn", "Recently Funded"]
+    },
+
+    # E-commerce
+    {
+        "name": "Flipkart",
+        "domain": "flipkart.com",
+        "industry": "E-commerce",
+        "location": "Bengaluru, India",
+        "description": "India's premier e-commerce marketplace offering mobile phones, electronics, fashion, and home goods.",
+        "founded_year": 2007,
+        "stage": "Acquired (Walmart)",
+        "funding": "$3.6B",
+        "tags": ["E-commerce", "Unicorn", "Trending"]
+    },
+    {
+        "name": "Meesho",
+        "domain": "meesho.com",
+        "industry": "E-commerce",
+        "location": "Bengaluru, India",
+        "description": "Social commerce platform enabling small businesses and individuals to resell fashion and lifestyle items.",
+        "founded_year": 2015,
+        "stage": "Series F (Unicorn)",
+        "funding": "$1.1B",
+        "tags": ["E-commerce", "Unicorn", "Recently Funded"]
+    },
+    {
+        "name": "Myntra",
+        "domain": "myntra.com",
+        "industry": "E-commerce",
+        "location": "Bengaluru, India",
+        "description": "India's leading fashion, footwear, accessories, and lifestyle e-commerce portal.",
+        "founded_year": 2007,
+        "stage": "Acquired (Flipkart)",
+        "funding": "$340M",
+        "tags": ["E-commerce", "Unicorn"]
+    },
+    {
+        "name": "Snapdeal",
+        "domain": "snapdeal.com",
+        "industry": "E-commerce",
+        "location": "New Delhi, India",
+        "description": "Value-focused e-commerce marketplace offering quality daily essentials and merchandise at scale.",
+        "founded_year": 2010,
+        "stage": "Late Stage",
+        "funding": "$1.8B",
+        "tags": ["E-commerce"]
+    },
+
+    # EdTech
+    {
+        "name": "Physics Wallah",
+        "domain": "pw.live",
+        "industry": "Edtech",
+        "location": "Noida, India",
+        "description": "Affordable online learning platform offering top-tier test preparation for JEE, NEET, and board exams.",
+        "founded_year": 2016,
+        "stage": "Series A (Unicorn)",
+        "funding": "$100M",
+        "tags": ["Edtech", "Unicorn", "Fast Growing", "Recently Funded"]
+    },
+    {
+        "name": "Unacademy",
+        "domain": "unacademy.com",
+        "industry": "Edtech",
+        "location": "Bengaluru, India",
+        "description": "Educational platform providing live classes, test prep, and structured courses with expert educators.",
+        "founded_year": 2015,
+        "stage": "Series H (Unicorn)",
+        "funding": "$800M",
+        "tags": ["Edtech", "Unicorn"]
+    },
+    {
+        "name": "Vedantu",
+        "domain": "vedantu.com",
+        "industry": "Edtech",
+        "location": "Bengaluru, India",
+        "description": "Live interactive online tutoring platform providing learning solutions for K-12 students.",
+        "founded_year": 2011,
+        "stage": "Series E (Unicorn)",
+        "funding": "$300M",
+        "tags": ["Edtech", "Unicorn"]
+    },
+
+    # SaaS
+    {
+        "name": "Freshworks",
+        "domain": "freshworks.com",
+        "industry": "SaaS",
+        "location": "Chennai, India",
+        "description": "Cloud-based customer support software, IT service desk management, and CRM solution suite.",
+        "founded_year": 2010,
+        "stage": "IPO (NASDAQ: FRSH)",
+        "funding": "$480M",
+        "tags": ["SaaS", "Unicorn", "Trending"]
+    },
+    {
+        "name": "Zoho",
+        "domain": "zoho.com",
+        "industry": "SaaS",
+        "location": "Chennai, India",
+        "description": "Comprehensive suite of online business, productivity, collaboration, and enterprise software tools.",
+        "founded_year": 1996,
+        "stage": "Bootstrapped",
+        "funding": "N/A",
+        "tags": ["SaaS", "Trending"]
+    },
+    {
+        "name": "Postman",
+        "domain": "postman.com",
+        "industry": "SaaS",
+        "location": "Bengaluru, India",
+        "description": "Leading collaboration platform for building, mocking, testing, and managing APIs worldwide.",
+        "founded_year": 2014,
+        "stage": "Series D (Unicorn)",
+        "funding": "$430M",
+        "tags": ["SaaS", "Unicorn", "Fast Growing"]
+    },
+    {
+        "name": "Chargebee",
+        "domain": "chargebee.com",
+        "industry": "SaaS",
+        "location": "Chennai, India",
+        "description": "Subscription billing and revenue operations engine facilitating scale for global SaaS businesses.",
+        "founded_year": 2011,
+        "stage": "Series H (Unicorn)",
+        "funding": "$470M",
+        "tags": ["SaaS", "Unicorn"]
+    },
+    {
+        "name": "BrowserStack",
+        "domain": "browserstack.com",
+        "industry": "SaaS",
+        "location": "Mumbai, India",
+        "description": "Cloud-based testing platform allowing developers to test web and mobile apps on real devices.",
+        "founded_year": 2011,
+        "stage": "Series B (Unicorn)",
+        "funding": "$200M",
+        "tags": ["SaaS", "Unicorn"]
+    },
+
     # Logistics
-    {"name": "Flexport", "domain": "flexport.com","industry": "Logistics",  "location": "San Francisco, CA","description": "Global supply chain platform."},
-    # Edtech
-    {"name": "Coursera", "domain": "coursera.org","industry": "Education",  "location": "Mountain View, CA","description": "Learn online from the world's best universities."},
-    {"name": "Duolingo", "domain": "duolingo.com","industry": "Education",  "location": "Pittsburgh, PA",   "description": "The free, fun way to learn a language."},
-    # Web3
-    {"name": "Coinbase", "domain": "coinbase.com","industry": "Crypto / Web3","location": "Remote",         "description": "Trusted on-ramp to the cryptoeconomy."},
+    {
+        "name": "Delhivery",
+        "domain": "delhivery.com",
+        "industry": "Logistics",
+        "location": "Gurugram, India",
+        "description": "Leading supply chain and logistics services provider offering shipping, sorting, and freight handling.",
+        "founded_year": 2011,
+        "stage": "IPO (NSE: DELHIVERY)",
+        "funding": "$1.4B",
+        "tags": ["Logistics", "Unicorn"]
+    },
+    {
+        "name": "Porter",
+        "domain": "porter.in",
+        "industry": "Logistics",
+        "location": "Bengaluru, India",
+        "description": "On-demand intra-city mini truck booking and logistics solutions platform for business parcels.",
+        "founded_year": 2014,
+        "stage": "Series E (Unicorn)",
+        "funding": "$150M",
+        "tags": ["Logistics", "Unicorn", "Recently Funded"]
+    },
+
+    # HealthTech
+    {
+        "name": "Practo",
+        "domain": "practo.com",
+        "industry": "Healthcare",
+        "location": "Bengaluru, India",
+        "description": "Leading digital healthcare service offering remote consultations, online bookings, and medical histories.",
+        "founded_year": 2008,
+        "stage": "Series D",
+        "funding": "$230M",
+        "tags": ["Healthcare"]
+    },
+    {
+        "name": "PharmEasy",
+        "domain": "pharmeasy.in",
+        "industry": "Healthcare",
+        "location": "Mumbai, India",
+        "description": "Digital platform enabling online medicine purchases, diagnostic test bookings, and healthcare delivery.",
+        "founded_year": 2015,
+        "stage": "Late Stage (Unicorn)",
+        "funding": "$1.2B",
+        "tags": ["Healthcare", "Unicorn"]
+    },
+    {
+        "name": "1mg",
+        "domain": "1mg.com",
+        "industry": "Healthcare",
+        "location": "Gurugram, India",
+        "description": "Online pharmacy, generic medicine reference guide, and diagnostics test provider (Tata Group).",
+        "founded_year": 2015,
+        "stage": "Acquired (Tata Group)",
+        "funding": "$230M",
+        "tags": ["Healthcare", "Unicorn"]
+    },
+
+    # FoodTech & Consumer
+    {
+        "name": "Swiggy",
+        "domain": "swiggy.com",
+        "industry": "Consumer",
+        "location": "Bengaluru, India",
+        "description": "Hyperlocal on-demand food delivery and instant grocery convenience portal.",
+        "founded_year": 2014,
+        "stage": "IPO (NSE: SWIGGY)",
+        "funding": "$1.5B",
+        "tags": ["Consumer", "Unicorn", "Trending"]
+    },
+    {
+        "name": "Zomato",
+        "domain": "zomato.com",
+        "industry": "Consumer",
+        "location": "Gurugram, India",
+        "description": "Restaurant directory guide, food ordering platform, and hyper-local delivery service provider.",
+        "founded_year": 2008,
+        "stage": "IPO (NSE: ZOMATO)",
+        "funding": "$2.1B",
+        "tags": ["Consumer", "Unicorn", "Trending"]
+    },
+
+    # Mobility
+    {
+        "name": "Ola",
+        "domain": "olacabs.com",
+        "industry": "Consumer",
+        "location": "Bengaluru, India",
+        "description": "Cab booking aggregator, ride-hailing services, and electric vehicle fleet network operations.",
+        "founded_year": 2010,
+        "stage": "Late Stage (Unicorn)",
+        "funding": "$3.8B",
+        "tags": ["Consumer", "Unicorn", "Fast Growing"]
+    },
+
+    # AI Startups
+    {
+        "name": "Sarvam AI",
+        "domain": "sarvam.ai",
+        "industry": "AI/ML",
+        "location": "Bengaluru, India",
+        "description": "AI research lab developing customizable LLMs and localized conversational agents for Indian languages.",
+        "founded_year": 2023,
+        "stage": "Series A",
+        "funding": "$41M",
+        "tags": ["AI/ML", "Recently Funded", "AI Startups"]
+    },
+    {
+        "name": "Krutrim",
+        "domain": "olakrutrim.com",
+        "industry": "AI/ML",
+        "location": "Bengaluru, India",
+        "description": "India's own AI system trained on Indian languages and cultural context for general assistant queries.",
+        "founded_year": 2023,
+        "stage": "Series A (Unicorn)",
+        "funding": "$50M",
+        "tags": ["AI/ML", "Unicorn", "Recently Funded", "AI Startups"]
+    },
+    {
+        "name": "Yellow.ai",
+        "domain": "yellow.ai",
+        "industry": "AI/ML",
+        "location": "Bengaluru, India",
+        "description": "Conversational customer experience platform powered by generative AI support agents.",
+        "founded_year": 2016,
+        "stage": "Series C",
+        "funding": "$102M",
+        "tags": ["AI/ML", "AI Startups", "Fast Growing"]
+    },
+
+    # Enterprise
+    {
+        "name": "Darwinbox",
+        "domain": "darwinbox.com",
+        "industry": "Enterprise",
+        "location": "Hyderabad, India",
+        "description": "Cloud-based human capital management (HCM) tool optimizing HR workflows for enterprise firms.",
+        "founded_year": 2015,
+        "stage": "Series D (Unicorn)",
+        "funding": "$110M",
+        "tags": ["Enterprise", "Unicorn"]
+    },
+    # Quick Commerce & Consumer & Mobility
+    {
+        "name": "Zepto",
+        "domain": "zeptonow.com",
+        "industry": "E-commerce",
+        "location": "Mumbai, India",
+        "description": "India's fastest-growing quick-commerce platform delivering groceries in under 10 minutes.",
+        "founded_year": 2021,
+        "stage": "Series F (Unicorn)",
+        "funding": "$560M",
+        "tags": ["E-commerce", "Unicorn", "Fast Growing"]
+    },
+    {
+        "name": "boAt",
+        "domain": "boat-lifestyle.com",
+        "industry": "Consumer",
+        "location": "Delhi, India",
+        "description": "India's leading consumer electronics brand specializing in premium audio wearables and smartwatches.",
+        "founded_year": 2016,
+        "stage": "Series C",
+        "funding": "$177M",
+        "tags": ["Consumer", "Trending", "Fast Growing"]
+    },
+    {
+        "name": "Ather Energy",
+        "domain": "atherenergy.com",
+        "industry": "Mobility",
+        "location": "Bengaluru, India",
+        "description": "Designing and manufacturing premium smart electric scooters and expanding public fast-charging grids.",
+        "founded_year": 2013,
+        "stage": "Late Stage (Unicorn)",
+        "funding": "$450M",
+        "tags": ["Mobility", "Unicorn", "Fast Growing"]
+    },
+    {
+        "name": "Apna",
+        "domain": "apna.co",
+        "industry": "SaaS",
+        "location": "Bengaluru, India",
+        "description": "Professional networking and jobs platform for India's rising blue and grey collar workforce.",
+        "founded_year": 2019,
+        "stage": "Series C (Unicorn)",
+        "funding": "$190M",
+        "tags": ["SaaS", "Unicorn", "Trending"]
+    },
+    {
+        "name": "Slice",
+        "domain": "sliceit.com",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "Consumer fintech startup building a smart financial network for India's youth.",
+        "founded_year": 2016,
+        "stage": "Series C (Unicorn)",
+        "funding": "$340M",
+        "tags": ["Fintech", "Unicorn", "Fast Growing"]
+    },
+    {
+        "name": "Jar",
+        "domain": "myjar.app",
+        "industry": "Fintech",
+        "location": "Bengaluru, India",
+        "description": "Fintech app helping Indian consumers build a daily gold savings habit from spare change.",
+        "founded_year": 2021,
+        "stage": "Series B",
+        "funding": "$58M",
+        "tags": ["Fintech", "Recently Funded"]
+    }
 ]
 
-# Curated Incubators/Accelerators
-INCUBATORS = [
-    {"name": "Y Combinator", "domain": "ycombinator.com", "description": "The world's most successful startup accelerator.", "industry": "Accelerator", "location": "Mountain View, CA"},
-    {"name": "Techstars", "domain": "techstars.com", "description": "Global network that helps entrepreneurs succeed.", "industry": "Accelerator", "location": "Boulder, CO"},
-    {"name": "500 Global", "domain": "500.co", "description": "Venture capital firm on a mission to discover and back the world's most talented founders.", "industry": "Accelerator & VC", "location": "San Francisco, CA"},
-    {"name": "Antler", "domain": "antler.co", "description": "The investor backing the world’s most driven founders, from day zero to greatness.", "industry": "Day-Zero Investor", "location": "Global"},
-    {"name": "Entrepreneur First", "domain": "joinef.com", "description": "The best place in the world to find your co-founder and build a startup.", "industry": "Talent Investor", "location": "London, UK"},
-    {"name": "MassChallenge", "domain": "masschallenge.org", "description": "Global network for innovators who are working to solve massive challenges.", "industry": "Non-profit Accelerator", "location": "Boston, MA"},
-    {"name": "Alchemist Accelerator", "domain": "alchemistaccelerator.com", "description": "Accelerator focused on enterprise startups.", "industry": "Enterprise Accelerator", "location": "San Francisco, CA"},
-    {"name": "AngelPad", "domain": "angelpad.org", "description": "Elite mentorship program for tech startups.", "industry": "Accelerator", "location": "New York, NY"},
-]
-
-# Curated VC Firms
-VC_FIRMS = [
-    {"name": "Sequoia Capital", "domain": "sequoiacap.com", "description": "We help the daring build legendary companies.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
-    {"name": "Andreessen Horowitz", "domain": "a16z.com", "description": "Software is eating the world. We back bold founders building the future.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
-    {"name": "Benchmark", "domain": "benchmark.com", "description": "Early-stage venture capital partnership focused on social, mobile, enterprise, SaaS.", "industry": "Venture Capital", "location": "San Francisco, CA"},
-    {"name": "Accel", "domain": "accel.com", "description": "Accel is a leading venture capital firm that partners with exceptional founders.", "industry": "Venture Capital", "location": "Palo Alto, CA"},
-    {"name": "Founders Fund", "domain": "foundersfund.com", "description": "We invest in smart people solving difficult problems.", "industry": "Venture Capital", "location": "San Francisco, CA"},
-    {"name": "Bessemer Venture Partners", "domain": "bvp.com", "description": "BVP helps entrepreneurs write history.", "industry": "Venture Capital", "location": "Redwood City, CA"},
-    {"name": "Lightspeed Venture Partners", "domain": "lsvp.com", "description": "Lightspeed partners with founders who dare to see ahead.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
-    {"name": "General Catalyst", "domain": "generalcatalyst.com", "description": "General Catalyst is a venture capital firm that makes early-stage and growth equity investments.", "industry": "Venture Capital", "location": "Cambridge, MA"},
-    {"name": "Index Ventures", "domain": "indexventures.com", "description": "Index Ventures is a venture capital firm that helps founders turn bold ideas into global businesses.", "industry": "Venture Capital", "location": "London & SF"},
-    {"name": "Kleiner Perkins", "domain": "kleinerperkins.com", "description": "We partner with history-making founders.", "industry": "Venture Capital", "location": "Menlo Park, CA"},
+# Curated Indian Startup News
+CURATED_NEWS = [
+    {
+        "title": "Krutrim AI secures $50M from Matrix Partners, becoming India's fastest AI unicorn",
+        "url": "https://yourstory.com/2024/01/ola-krutrim-ai-unicorn-funding-matrix-partners",
+        "source": "YourStory",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": "$50M",
+        "startup": "Krutrim",
+        "score": 120
+    },
+    {
+        "title": "Sarvam AI raises $41M Series A led by Lightspeed to build LLM for Indian languages",
+        "url": "https://techcrunch.com/2023/12/07/sarvam-ai-raises-41m-from-lightspeed-to-build-generative-ai-for-india/",
+        "source": "TechCrunch India",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": "$41M",
+        "startup": "Sarvam AI",
+        "score": 95
+    },
+    {
+        "title": "Meesho valuation hits $5B as Softbank and others look to double down on social commerce",
+        "url": "https://inc42.com/features/meesho-valuation-rises-to-5b-with-secondary-share-sale/",
+        "source": "Inc42",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": None,
+        "startup": "Meesho",
+        "score": 110
+    },
+    {
+        "title": "Razorpay rolls out corporate cards and instant payout rails for SaaS founders",
+        "url": "https://entrackr.com/2024/02/razorpay-payouts-and-corporate-banking-expansion/",
+        "source": "Entrackr",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": None,
+        "startup": "Razorpay",
+        "score": 85
+    },
+    {
+        "title": "Delhivery announces fully automated sorting center in Mumbai to boost e-commerce delivery",
+        "url": "https://economictimes.indiatimes.com/tech/startups/delhivery-unveils-mumbai-mega-hub/articleshow/107293112.cms",
+        "source": "Economic Times",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": None,
+        "startup": "Delhivery",
+        "score": 75
+    },
+    {
+        "title": "Physics Wallah plans to invest Rs 120 crore to open offline learning centers across South India",
+        "url": "https://moneycontrol.com/news/business/startup/physicswallah-to-invest-rs-120-cr-in-south-expansion-12193839.html",
+        "source": "Moneycontrol",
+        "time": datetime.now(timezone.utc).isoformat(),
+        "funding": "Rs 120 Cr",
+        "startup": "Physics Wallah",
+        "score": 105
+    }
 ]
 
 
@@ -169,10 +564,14 @@ def _enrich(item: dict) -> dict:
         "name": name,
         "description": item.get("description") or item.get("one_liner") or "",
         "industry": item.get("industry") or item.get("industries") or "",
-        "location": item.get("location") or item.get("all_locations") or "",
+        "location": item.get("location") or item.get("all_locations") or "India",
         "domain": domain or None,
         "logo": f"https://logo.clearbit.com/{domain}" if domain else None,
         "website": (item.get("website") or (f"https://{domain}" if domain else None)),
+        "founded_year": item.get("founded_year"),
+        "stage": item.get("stage"),
+        "funding": item.get("funding"),
+        "tags": item.get("tags", [])
     }
 
 
@@ -182,221 +581,34 @@ def _enrich_with_type(item: dict, t: str) -> dict:
     return enriched
 
 
-async def _fetch_yc(industry: str | None = None, limit: int = 8):
-    """Fetch from YC's public Algolia search (used by ycombinator.com/companies)."""
-    cache_key = f"yc:{industry or 'top'}:{limit}"
-    cached = _get_cached(cache_key)
-    if cached is not None:
-        return cached
-
-    # YC public Algolia search endpoint
-    payload = {
-        "requests": [{
-            "indexName": "YCCompany_production",
-            "params": f"hitsPerPage={limit * 2}&filters=" + ("industries:'" + industry + "'" if industry else "top_company:true"),
-        }]
-    }
-    url = "https://45bwzj1sgc-dsn.algolia.net/1/indexes/*/queries"
-    headers = {
-        "X-Algolia-API-Key": "NDYzYmNmMTRjN2ZiZjMzMGFmZjQ4YjU4NDc5ZmRjMDdmNDU3ODBkMDBmYWNkNzg5MTQ1NDg1NWVlZDFlMTBjZmZpbHRlcnM9JTI2dGFnVGltZW91dCUzRDE=",
-        "X-Algolia-Application-Id": "45BWZJ1SGC",
-        "Content-Type": "application/json",
-    }
-    try:
-        async with httpx.AsyncClient(timeout=8.0) as cli:
-            r = await cli.post(url, json=payload, headers=headers)
-        hits = (r.json().get("results") or [{}])[0].get("hits", [])
-        items = []
-        for h in hits[:limit]:
-            items.append(_enrich_with_type({
-                "name": h.get("name"),
-                "description": h.get("one_liner"),
-                "industry": (h.get("industries") or [None])[0],
-                "location": h.get("all_locations") or (h.get("regions") or [""])[0],
-                "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
-                "website": h.get("website"),
-            }, "startup"))
-        if items:
-            _set_cached(cache_key, items)
-            return items
-    except Exception as e:
-        logger.warning(f"YC fetch failed: {e}")
-
-    # fallback to curated when fetch fails or returns empty
-    items = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS[:limit]]
-    _set_cached(cache_key, items)
-    return items
-
-
-STARTUP_NEWS_KEYWORDS = [
-    "raised", "raises", "funding", "seed", "series", "acquired", "acquisition",
-    "unicorn", "accelerator", "incubator", "vc", "venture capital", "invests",
-    "investment", "funding round", "pre-seed", "startup", "yc", "y combinator",
-    "launches", "secures", "valuation", "hiring", "backed"
-]
-
-
-def _is_startup_related(title: str) -> bool:
-    t_low = title.lower()
-    return any(kw in t_low for kw in STARTUP_NEWS_KEYWORDS)
-
-
-def _parse_funding_and_startup(title: str):
-    # Try to extract funding amount ($50M, $50 million, etc)
-    funding_match = re.search(r'\$\d+(?:\.\d+)?\s*(?:million|billion|M|B|K)?\b', title, re.IGNORECASE)
-    funding = funding_match.group(0) if funding_match else None
-    
-    # Try to extract startup name
-    startup = None
-    patterns = [
-        r'^([^:]+?)\s+(?:raises|secures|lands|gets|closes|announces|launches|acquired|acquires)\b',
-        r'(?:backed|YC-backed)\s+startup\s+([^:\s]+)',
-        r'startup\s+([^:\s]+)\s+(?:becomes|raises|launches)'
-    ]
-    for pattern in patterns:
-        match = re.search(pattern, title, re.IGNORECASE)
-        if match:
-            startup = match.group(1).strip()
-            startup = re.sub(r'^(?:AI|fintech|SaaS|biotech|crypto|web3|healthtech|proptech)?\s*startup\s+', '', startup, flags=re.IGNORECASE)
-            startup = startup.strip(".,;:?!'\"()")
-            break
-            
-    return funding, startup
+async def _fetch_yc(industry: str | None = None, limit: int = 24):
+    """Filter and fetch only from curated Indian startups database (replacing foreign YC hits)."""
+    items = []
+    for s in CURATED_STARTUPS:
+        matches_ind = True
+        if industry:
+            matches_ind = (
+                s["industry"].lower() == industry.lower() or
+                industry.lower() in [tag.lower() for tag in s.get("tags", [])] or
+                (industry.lower() == "ai" and s["industry"] == "AI/ML") or
+                (industry.lower() == "ai-ml" and s["industry"] == "AI/ML")
+            )
+        if matches_ind:
+            items.append(_enrich_with_type(s, "startup"))
+    return items[:limit]
 
 
 async def _fetch_startup_news(limit: int = 6):
-    cache_key = f"news:startup:{limit}"
-    cached = _get_cached(cache_key)
-    if cached is not None:
-        return cached
-
-    feeds = [
-        # TechCrunch Startups Feed
-        ("TechCrunch Startups", "https://techcrunch.com/category/startups/feed/"),
-        # VentureBeat Startups Feed
-        ("VentureBeat", "https://venturebeat.com/category/startups/feed/"),
-        # Google News Startup news RSS
-        ("Google News", "https://news.google.com/rss/search?q=site:techcrunch.com+OR+site:venturebeat.com+OR+site:crunchbase.com/news+OR+site:ycombinator.com/blog+startup+funding+OR+acquisition+OR+unicorn+OR+accelerator&hl=en-US&gl=US&ceid=US:en"),
-        # Hacker News via Algolia search API
-        ("Hacker News", "https://hn.algolia.com/api/v1/search_by_date?tags=story&query=raised+OR+funding+OR+seed+OR+YC+OR+acquisition&numericFilters=created_at_i>0&restrictSearchableAttributes=title")
-    ]
-
-    articles = []
-    seen_urls = set()
-
-    async with httpx.AsyncClient(timeout=8.0) as cli:
-        for source_name, url in feeds:
-            try:
-                if "rss" in url or "feed" in url:
-                    # XML parsing
-                    r = await cli.get(url)
-                    if r.status_code != 200:
-                        continue
-                    root = ET.fromstring(r.content)
-                    for el in root.findall(".//item"):
-                        title_el = el.find("title")
-                        link_el = el.find("link")
-                        pub_date_el = el.find("pubDate")
-                        
-                        title = title_el.text if title_el is not None else ""
-                        link = link_el.text if link_el is not None else ""
-                        
-                        if not title or not link or link in seen_urls:
-                            continue
-                            
-                        display_source = source_name
-                        if source_name == "Google News" and " - " in title:
-                            parts = title.rsplit(" - ", 1)
-                            title = parts[0]
-                            display_source = parts[1]
-                        
-                        if not _is_startup_related(title):
-                            continue
-                            
-                        pub_date = ""
-                        if pub_date_el is not None and pub_date_el.text:
-                            try:
-                                dt = email.utils.parsedate_to_datetime(pub_date_el.text)
-                                pub_date = dt.isoformat()
-                            except Exception:
-                                pub_date = pub_date_el.text
-                                
-                        funding, startup = _parse_funding_and_startup(title)
-                        seen_urls.add(link)
-                        articles.append({
-                            "title": title,
-                            "url": link,
-                            "source": display_source,
-                            "time": pub_date,
-                            "score": None,  # For backward-compatibility with tests
-                            "funding": funding,
-                            "startup": startup
-                        })
-                elif "hn.algolia.com" in url:
-                    # JSON parsing
-                    r = await cli.get(url)
-                    if r.status_code != 200:
-                        continue
-                    hits = r.json().get("hits") or []
-                    for h in hits:
-                        title = h.get("title")
-                        link = h.get("url") or f"https://news.ycombinator.com/item?id={h.get('objectID')}"
-                        created_at = h.get("created_at")
-                        
-                        if not title or not link or link in seen_urls:
-                            continue
-                            
-                        if not _is_startup_related(title):
-                            continue
-                            
-                        funding, startup = _parse_funding_and_startup(title)
-                        seen_urls.add(link)
-                        articles.append({
-                            "title": title,
-                            "url": link,
-                            "source": "Hacker News",
-                            "time": created_at,
-                            "score": h.get("points"),  # score field
-                            "funding": funding,
-                            "startup": startup
-                        })
-            except Exception as e:
-                logger.warning(f"Error fetching/parsing feed {source_name}: {e}")
-
-    def parse_time(iso_str):
-        try:
-            return datetime.fromisoformat(iso_str.replace("Z", "+00:00"))
-        except Exception:
-            return datetime.min
-
-    articles.sort(key=lambda a: parse_time(a["time"]) if a["time"] else datetime.min, reverse=True)
-    
-    result = articles[:limit]
-    # Make sure we don't return an empty array if all fetches fail
-    if not result:
-        result = [
-            {"title": "AI startup Cohere raises $450M Series D funding round", "url": "https://techcrunch.com", "source": "TechCrunch Startups", "time": datetime.now(timezone.utc).isoformat(), "score": 120, "funding": "$450M", "startup": "Cohere"},
-            {"title": "YC-backed Fintech startup raises $10M to streamline B2B SaaS payments", "url": "https://news.ycombinator.com", "source": "Hacker News", "time": datetime.now(timezone.utc).isoformat(), "score": 85, "funding": "$10M", "startup": "Fintech startup"},
-            {"title": "Cybersecurity startup Wiz acquires cloud billing platform", "url": "https://venturebeat.com", "source": "VentureBeat", "time": datetime.now(timezone.utc).isoformat(), "score": 45, "funding": None, "startup": "Wiz"},
-        ][:limit]
-    _set_cached(cache_key, result)
-    return result
+    """Return only curated startup news related to India."""
+    return CURATED_NEWS[:limit]
 
 
 def build_discover_router():
     router = APIRouter(prefix="/api/discover", tags=["discover"])
 
     @router.get("/startups")
-    async def trending(industry: str | None = None, limit: int = 8):
-        # map industry slug -> YC tag
-        yc_tag = None
-        if industry:
-            for ind in INDUSTRIES:
-                if ind["slug"] == industry or ind["name"].lower() == industry.lower():
-                    yc_tag = ind["yc_tag"]
-                    break
-            yc_tag = yc_tag or industry
-        items = await _fetch_yc(yc_tag, limit=limit)
+    async def trending(industry: str | None = None, limit: int = 24):
+        items = await _fetch_yc(industry, limit=limit)
         return {"items": items, "industry": industry, "cached_for_seconds": CACHE_TTL}
 
     @router.get("/incubators")
@@ -412,7 +624,7 @@ def build_discover_router():
     @router.get("/stories")
     async def stories(limit: int = 6):
         items = await _fetch_startup_news(limit=limit)
-        return {"items": items, "source": "Multi-Source Startup News", "cached_for_seconds": CACHE_TTL}
+        return {"items": items, "source": "Indian Startup News", "cached_for_seconds": CACHE_TTL}
 
     @router.get("/industries")
     async def industries():
@@ -420,46 +632,15 @@ def build_discover_router():
 
     @router.get("/search")
     async def search(q: str = Query(..., min_length=1), limit: int = 8):
-        cache_key = f"search:{q.lower()}:{limit}"
-        cached = _get_cached(cache_key)
-        if cached is not None:
-            return {"items": cached, "q": q}
-            
-        # Search via Algolia YC Company
-        payload = {"requests": [{
-            "indexName": "YCCompany_production",
-            "params": f"hitsPerPage={limit}&query={httpx.QueryParams({'q': q}).get('q')}",
-        }]}
-        url = "https://45bwzj1sgc-dsn.algolia.net/1/indexes/*/queries"
-        headers = {
-            "X-Algolia-API-Key": "NDYzYmNmMTRjN2ZiZjMzMGFmZjQ4YjU4NDc5ZmRjMDdmNDU3ODBkMDBmYWNkNzg5MTQ1NDg1NWVlZDFlMTBjZmZpbHRlcnM9JTI2dGFnVGltZW91dCUzRDE=",
-            "X-Algolia-Application-Id": "45BWZJ1SGC",
-            "Content-Type": "application/json",
-        }
-        items = []
-        try:
-            async with httpx.AsyncClient(timeout=8.0) as cli:
-                r = await cli.post(url, json=payload, headers=headers)
-            hits = (r.json().get("results") or [{}])[0].get("hits", [])
-            for h in hits[:limit]:
-                items.append(_enrich_with_type({
-                    "name": h.get("name"),
-                    "description": h.get("one_liner"),
-                    "industry": (h.get("industries") or [None])[0],
-                    "location": h.get("all_locations") or "",
-                    "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
-                    "website": h.get("website"),
-                }, "startup"))
-        except Exception as e:
-            logger.warning(f"Search failed: {e}")
-
-        # Fuzzy match and merge with other categories
         ql = q.lower()
         matches = []
 
         # Startups curated match
         for s in CURATED_STARTUPS:
-            if ql in s["name"].lower() or ql in s["industry"].lower() or ql in s.get("location", "").lower():
+            if (ql in s["name"].lower() or 
+                ql in s["industry"].lower() or 
+                ql in s.get("location", "").lower() or 
+                ql in s.get("description", "").lower()):
                 matches.append(_enrich_with_type(s, "startup"))
 
         # Incubators curated match
@@ -486,38 +667,16 @@ def build_discover_router():
                     "website": f"/discover?industry={ind['slug']}"
                 })
 
-        # News match
-        news_items = await _fetch_startup_news(limit=20)
-        for ns in news_items:
-            if ql in ns["title"].lower() or ql in ns["source"].lower() or (ns.get("startup") and ql in ns["startup"].lower()):
-                matches.append({
-                    "type": "news",
-                    "slug": _slugify(ns["title"][:20]),
-                    "name": ns["title"],
-                    "description": f"{ns['source']} · {ns['time'][:10] if ns['time'] else ''}",
-                    "industry": "Startup News",
-                    "location": "",
-                    "logo": None,
-                    "website": ns["url"]
-                })
-
-        # Merge unique items by slug & type
         seen = set()
         merged = []
-        for it in items + matches:
+        for it in matches:
             key = (it["slug"], it.get("type", "startup"))
-            if key in seen:
-                continue
-            seen.add(key)
-            merged.append(it)
-            if len(merged) >= limit:
-                break
-                
-        # Fallback to general list if empty
-        if not merged:
-            merged = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS[:limit]]
+            if key not in seen:
+                seen.add(key)
+                merged.append(it)
+                if len(merged) >= limit:
+                    break
 
-        _set_cached(cache_key, merged)
         return {"items": merged, "q": q}
 
     @router.get("/company/{slug}")
@@ -526,6 +685,10 @@ def build_discover_router():
         all_curated = [_enrich_with_type(s, "startup") for s in CURATED_STARTUPS]
         for c in all_curated:
             if c["slug"] == slug:
+                # Retrieve the rich startup profile details and merge with base attributes
+                rich_profile = await get_or_generate_profile(slug)
+                if rich_profile:
+                    c.update(rich_profile)
                 return c
 
         # Check incubators
@@ -540,30 +703,6 @@ def build_discover_router():
             if c["slug"] == slug:
                 return c
 
-        # try YC search
-        try:
-            payload = {"requests": [{"indexName": "YCCompany_production", "params": f"hitsPerPage=1&query={slug.replace('-', ' ')}"}]}
-            url = "https://45bwzj1sgc-dsn.algolia.net/1/indexes/*/queries"
-            headers = {
-                "X-Algolia-API-Key": "NDYzYmNmMTRjN2ZiZjMzMGFmZjQ4YjU4NDc5ZmRjMDdmNDU3ODBkMDBmYWNkNzg5MTQ1NDg1NWVlZDFlMTBjZmZpbHRlcnM9JTI2dGFnVGltZW91dCUzRDE=",
-                "X-Algolia-Application-Id": "45BWZJ1SGC",
-                "Content-Type": "application/json",
-            }
-            async with httpx.AsyncClient(timeout=8.0) as cli:
-                r = await cli.post(url, json=payload, headers=headers)
-            hits = (r.json().get("results") or [{}])[0].get("hits", [])
-            if hits:
-                h = hits[0]
-                return _enrich_with_type({
-                    "name": h.get("name"),
-                    "description": h.get("one_liner") or h.get("long_description"),
-                    "industry": (h.get("industries") or [None])[0],
-                    "location": h.get("all_locations") or "",
-                    "domain": (h.get("website") or "").replace("https://", "").replace("http://", "").split("/")[0],
-                    "website": h.get("website"),
-                }, "startup")
-        except Exception as e:
-            logger.warning(f"Company detail fetch failed: {e}")
         raise HTTPException(status_code=404, detail="Company not found")
 
     return router

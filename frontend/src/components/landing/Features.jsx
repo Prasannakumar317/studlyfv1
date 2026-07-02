@@ -49,7 +49,7 @@ export default function Features() {
                 <h3 className="mt-5 font-display text-lg font-semibold text-gray-900">{f.title}</h3>
                 <p className="mt-2 text-sm text-gray-600 leading-relaxed">{f.desc}</p>
                 <button
-                  className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-gray-700 group-hover:text-[#6C63FF] transition"
+                  className="mt-5 inline-flex items-center gap-1 text-xs font-semibold text-gray-700 group-hover:text-[#7C3AED] transition"
                   data-testid={`feature-learn-${f.title.toLowerCase().replace(/\s+/g, "-")}`}
                 >
                   Learn more

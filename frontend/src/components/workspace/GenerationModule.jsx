@@ -13,6 +13,7 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
   const [active, setActive] = useState(null);
   const [loading, setLoading] = useState(false);
   const [busyKind, setBusyKind] = useState(null);
+  const [errorDetails, setErrorDetails] = useState(null);
 
   const loadHistory = async () => {
     if (!current) return;
@@ -22,25 +23,39 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
       const filtered = res.data.filter((g) => kinds.includes(g.kind));
       setHistory(filtered);
       if (!active && filtered.length > 0) setActive(filtered[0]);
-    } catch (e) { /* ignore */ }
+    } catch (error) { 
+      console.error("Failed to load generations history:", error); 
+    }
   };
 
   useEffect(() => {
-    setActive(null); setHistory([]);
+    setActive(null); setHistory([]); setErrorDetails(null);
     if (current) loadHistory();
   }, [current?.project_id]);
 
   const run = async (kind) => {
     if (!current) { toast.error("Create a project first."); return; }
-    setBusyKind(kind); setLoading(true);
+    setBusyKind(kind); setLoading(true); setActive(null); setErrorDetails(null);
     try {
       const res = await api.post("/workspace/generate", { project_id: current.project_id, kind });
       setActive(res.data);
       setHistory((h) => [res.data, ...h]);
       toast.success(`${res.data.label} ready`);
-    } catch (e) {
-      const msg = e?.response?.data?.detail || "Generation failed";
-      toast.error(typeof msg === "string" ? msg : "Generation failed");
+    } catch (error) {
+      console.error("AI Generation pipeline error:", error);
+      const details = error?.response?.data?.detail || {};
+      setErrorDetails({
+        actualError: details.error || error.message || "Generation failed",
+        apiStatus: error.response?.status || 500,
+        provider: details.provider || "Unknown",
+        model: details.model || "Unknown",
+        providerStatus: details.provider_status || "Unknown",
+        responseTime: details.response_time || "N/A",
+        requestId: details.request_id || "req_" + Math.random().toString(36).substring(2, 9),
+        developmentMode: true,
+        rawResponse: details.raw_response || ""
+      });
+      toast.error("Generation failed. Check the diagnostics panel below.");
     } finally { setLoading(false); setBusyKind(null); }
   };
 
@@ -70,7 +85,7 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
     <div data-testid={`module-${title.toLowerCase()}`}>
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-[#6C63FF]">{eyebrow}</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-[#7C3AED]">{eyebrow}</p>
           <h1 className="mt-1 font-display text-3xl md:text-4xl font-semibold tracking-tighter text-gray-900">{title}</h1>
           {intro && <p className="mt-2 text-gray-600 max-w-2xl">{intro}</p>}
         </div>
@@ -89,7 +104,7 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
               </div>
               <p className="mt-4 font-semibold text-gray-900">{t.label}</p>
               <p className="mt-1 text-xs text-gray-500 leading-relaxed">{t.desc}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-gray-700 group-hover:text-[#6C63FF]">
+              <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-semibold text-gray-700 group-hover:text-[#7C3AED]">
                 {isBusy ? "Generating…" : <>Generate <Icons.ArrowRight className="w-3 h-3" /></>}
               </span>
             </motion.button>
@@ -103,8 +118,8 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
           <div className="mt-3 space-y-2 max-h-[70vh] overflow-y-auto no-scrollbar pr-1">
             {history.length === 0 && <p className="text-sm text-gray-400">No outputs yet. Click a tool above.</p>}
             {history.map((g) => (
-              <button key={g.generation_id} onClick={() => setActive(g)}
-                className={`w-full text-left rounded-xl px-3 py-2.5 border transition ${active?.generation_id === g.generation_id ? "border-[#6C63FF]/40 bg-gradient-to-br from-[#F4F1FF] to-[#FFE9F2]" : "border-gray-100 bg-white hover:border-gray-200"}`}
+              <button key={g.generation_id} onClick={() => { setActive(g); setErrorDetails(null); }}
+                className={`w-full text-left rounded-xl px-3 py-2.5 border transition ${active?.generation_id === g.generation_id ? "border-[#7C3AED]/40 bg-gradient-to-br from-[#F4F1FF] to-[#FFE9F2]" : "border-gray-100 bg-white hover:border-gray-200"}`}
                 data-testid={`history-${g.generation_id}`}>
                 <p className="text-sm font-semibold text-gray-900">{g.label}</p>
                 <p className="text-[11px] text-gray-500 mt-0.5">{new Date(g.created_at).toLocaleString()}</p>
@@ -119,7 +134,7 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
               <motion.div key="loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="bg-white border border-gray-100 rounded-[24px] p-10 flex items-center justify-center min-h-[300px]">
                 <div className="text-center">
-                  <Loader2 className="w-7 h-7 mx-auto animate-spin text-[#6C63FF]" />
+                  <Loader2 className="w-7 h-7 mx-auto animate-spin text-[#7C3AED]" />
                   <p className="mt-3 font-display text-lg font-semibold">Thinking…</p>
                   <p className="text-sm text-gray-500">Gemini is generating your analytics.</p>
                 </div>
@@ -145,10 +160,51 @@ export default function GenerationModule({ title, eyebrow, intro, tools }) {
               </motion.div>
             )}
 
-            {!loading && !active && history.length === 0 && (
+            {errorDetails && (
+              <motion.div key="error" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="bg-red-50/70 backdrop-blur-sm border border-red-200/85 rounded-[24px] p-6 text-left space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-red-200 pb-3 flex-wrap gap-2">
+                  <div className="flex items-center gap-2 text-red-700">
+                    <Icons.AlertTriangle className="w-5 h-5" />
+                    <span className="font-display font-bold text-sm tracking-tight">Development Mode — AI Pipeline Error</span>
+                  </div>
+                  <span className="text-[10px] bg-red-100 text-red-800 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                    API Status: {errorDetails.apiStatus}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <span className="block font-bold text-gray-500 uppercase text-[9px] tracking-wider">Actual Error</span>
+                    <span className="block font-mono text-red-700 font-semibold mt-1 break-all bg-red-100/50 p-2.5 rounded-lg border border-red-100/80">{errorDetails.actualError}</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="block font-bold text-gray-500 uppercase text-[9px] tracking-wider">Provider Status</span>
+                      <span className="block font-semibold text-gray-800 mt-1">{errorDetails.provider} / {errorDetails.model} (Status: {errorDetails.providerStatus})</span>
+                    </div>
+                    <div>
+                      <span className="block font-bold text-gray-500 uppercase text-[9px] tracking-wider">Response Time</span>
+                      <span className="block font-semibold text-gray-800 mt-1">{errorDetails.responseTime}</span>
+                    </div>
+                    <div>
+                      <span className="block font-bold text-gray-500 uppercase text-[9px] tracking-wider">Request ID</span>
+                      <span className="block font-mono text-gray-800 mt-0.5">{errorDetails.requestId}</span>
+                    </div>
+                  </div>
+                </div>
+                {errorDetails.rawResponse && (
+                  <div className="pt-2">
+                    <span className="block font-bold text-gray-500 uppercase text-[9px] tracking-wider mb-1.5">Raw Response Body</span>
+                    <pre className="text-[10px] font-mono bg-gray-900 text-gray-100 p-3.5 rounded-xl overflow-x-auto max-h-48 shadow-inner">{errorDetails.rawResponse}</pre>
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {!loading && !active && !errorDetails && history.length === 0 && (
               <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                 className="bg-white border border-dashed border-gray-200 rounded-[24px] p-10 text-center">
-                <Sparkles className="w-7 h-7 mx-auto text-[#6C63FF]" />
+                <Sparkles className="w-7 h-7 mx-auto text-[#7C3AED]" />
                 <p className="mt-3 font-display text-lg font-semibold">Pick a tool above to start.</p>
                 <p className="text-sm text-gray-500">Every output is a live visual dashboard, not a wall of text.</p>
               </motion.div>

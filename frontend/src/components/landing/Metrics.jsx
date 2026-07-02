@@ -33,7 +33,7 @@ export default function Metrics() {
     <section className="relative py-20 md:py-28">
       <div className="max-w-[1400px] mx-auto px-5 md:px-8 lg:px-12">
         <div className="relative rounded-[32px] p-10 md:p-14 overflow-hidden"
-             style={{ background: "linear-gradient(135deg, #6C63FF 0%, #FF4D94 55%, #FF7A18 100%)" }}>
+             style={{ background: "linear-gradient(135deg, #7C3AED 0%, #EC4899 55%, #A855F7 100%)" }}>
           <div className="absolute inset-0 opacity-30 grid-bg" style={{ backgroundSize: "44px 44px" }} />
           <div className="absolute -top-20 -right-10 w-80 h-80 rounded-full bg-white/20 blur-3xl" />
           <div className="relative grid grid-cols-2 lg:grid-cols-4 gap-8 text-white">

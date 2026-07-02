@@ -36,7 +36,7 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
           className="lg:col-span-6"
         >
           <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full glass text-xs font-medium text-gray-700">
-            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#6C63FF] to-[#FF4D94]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-[#7C3AED] to-[#EC4899]" />
             AI Powered Business Intelligence
           </motion.div>
 
@@ -71,9 +71,9 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
           </motion.div>
 
           <motion.div variants={fadeUp} className="mt-10 flex items-center gap-5 text-xs text-gray-500">
-            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#2ECC71]" /> No credit card</div>
-            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#2ECC71]" /> 14-day Pro trial</div>
-            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#2ECC71]" /> Cancel anytime</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#22C55E]" /> No credit card</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#22C55E]" /> 14-day Pro trial</div>
+            <div className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#22C55E]" /> Cancel anytime</div>
           </motion.div>
         </motion.div>
 
@@ -86,15 +86,15 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
         >
           <div className="relative">
             {/* glow */}
-            <div className="absolute -inset-6 rounded-[40px] bg-gradient-to-br from-[#6C63FF]/30 via-[#FF4D94]/20 to-[#FF7A18]/20 blur-3xl" />
+            <div className="absolute -inset-6 rounded-[40px] bg-gradient-to-br from-[#7C3AED]/30 via-[#EC4899]/20 to-[#A855F7]/20 blur-3xl" />
             {/* main card */}
             <div className="relative glass rounded-[28px] p-5 md:p-6 border border-white/70">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF4D94]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#FFC145]" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#2ECC71]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#EC4899]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" />
                   </div>
                   <span className="ml-3 text-xs font-semibold text-gray-600">studlyf.ai / dashboard</span>
                 </div>
@@ -109,22 +109,22 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
                       <p className="text-xs font-semibold tracking-wider uppercase text-gray-500">Project Status</p>
                       <p className="font-display text-xl font-semibold text-gray-900 mt-1">Lumen Labs / Series A prep</p>
                     </div>
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] flex items-center justify-center text-white">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#EC4899] flex items-center justify-center text-white">
                       <TrendingUp className="w-5 h-5" />
                     </div>
                   </div>
 
                   <div className="mt-5 space-y-3">
-                    <Bar label="Business Analysis" value={92} color="linear-gradient(90deg,#6C63FF,#FF4D94)" />
-                    <Bar label="Market Research" value={78} color="linear-gradient(90deg,#3FA9F5,#6C63FF)" />
-                    <Bar label="Content Gen" value={64} color="linear-gradient(90deg,#FF7A18,#FF4D94)" />
-                    <Bar label="Investor Ready" value={87} color="linear-gradient(90deg,#2ECC71,#3FA9F5)" />
+                    <Bar label="Business Analysis" value={92} color="linear-gradient(90deg,#7C3AED,#EC4899)" />
+                    <Bar label="Market Research" value={78} color="linear-gradient(90deg,#6366F1,#7C3AED)" />
+                    <Bar label="Content Gen" value={64} color="linear-gradient(90deg,#A855F7,#EC4899)" />
+                    <Bar label="Investor Ready" value={87} color="linear-gradient(90deg,#22C55E,#6366F1)" />
                   </div>
                 </div>
 
                 {/* Side */}
                 <div className="col-span-12 md:col-span-5 flex flex-col gap-4">
-                  <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] relative overflow-hidden">
+                  <div className="rounded-2xl p-4 text-white bg-gradient-to-br from-[#7C3AED] to-[#EC4899] relative overflow-hidden">
                     <Bot className="w-6 h-6 mb-2" />
                     <p className="text-xs opacity-90 font-medium">Active agents</p>
                     <div className="flex items-end justify-between mt-1">
@@ -144,9 +144,9 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
                     <p className="text-xs font-semibold tracking-wider uppercase text-gray-500">Live Activity</p>
                     <ul className="mt-3 space-y-2.5 text-xs">
                       {[
-                        { c: "#6C63FF", t: "Strategy Agent drafted SWOT" },
-                        { c: "#FF4D94", t: "Brand Agent generated 12 logos" },
-                        { c: "#2ECC71", t: "Investor Agent: VC score 8.4" },
+                        { c: "#7C3AED", t: "Strategy Agent drafted SWOT" },
+                        { c: "#EC4899", t: "Brand Agent generated 12 logos" },
+                        { c: "#22C55E", t: "Investor Agent: VC score 8.4" },
                       ].map((it, i) => (
                         <motion.li
                           key={i}
@@ -166,7 +166,7 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
                 {/* AI chat preview */}
                 <div className="col-span-12 rounded-2xl p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-100">
                   <div className="flex items-center gap-2 text-xs font-semibold text-gray-700">
-                    <MessageSquare className="w-3.5 h-3.5 text-[#6C63FF]" /> Ask STUDLYF
+                    <MessageSquare className="w-3.5 h-3.5 text-[#7C3AED]" /> Ask STUDLYF
                   </div>
                   <div className="mt-3 space-y-2">
                     <div className="inline-block max-w-[85%] px-3 py-2 rounded-2xl rounded-bl-sm bg-white border border-gray-100 text-xs text-gray-700">
@@ -177,7 +177,7 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 1.4 }}
-                        className="inline-block max-w-[85%] px-3 py-2 rounded-2xl rounded-br-sm text-xs text-white bg-gradient-to-br from-[#6C63FF] to-[#FF4D94]"
+                        className="inline-block max-w-[85%] px-3 py-2 rounded-2xl rounded-br-sm text-xs text-white bg-gradient-to-br from-[#7C3AED] to-[#EC4899]"
                       >
                         Drafted • Problem, solution, market $42B, traction +18% MoM, ask $2M.
                       </motion.div>
@@ -193,7 +193,7 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:flex absolute -left-8 top-12 glass rounded-2xl p-3 items-center gap-2 shadow-xl"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FFC145] to-[#FF7A18] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F59E0B] to-[#A855F7] flex items-center justify-center text-white">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
@@ -206,7 +206,7 @@ export default function Hero({ onGetStarted, onWatchDemo }) {
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
               className="hidden md:flex absolute -right-6 bottom-16 glass rounded-2xl p-3 items-center gap-2 shadow-xl"
             >
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2ECC71] to-[#3FA9F5] flex items-center justify-center text-white">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#22C55E] to-[#6366F1] flex items-center justify-center text-white">
                 <Activity className="w-4 h-4" />
               </div>
               <div>

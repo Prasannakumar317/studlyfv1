@@ -38,7 +38,7 @@ export default function Workflow() {
                 whileInView={{ scaleX: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.4, ease: "easeInOut" }}
-                className="h-full origin-left bg-gradient-to-r from-[#6C63FF] via-[#FF4D94] to-[#FF7A18]"
+                className="h-full origin-left bg-gradient-to-r from-[#7C3AED] via-[#EC4899] to-[#A855F7]"
               />
             </div>
             <div className="grid grid-cols-9 gap-2">
@@ -74,7 +74,7 @@ export default function Workflow() {
           viewport={{ once: true }}
           className="mt-12 lg:hidden relative pl-8"
         >
-          <div className="absolute left-3 top-0 bottom-0 w-px bg-gradient-to-b from-[#6C63FF] via-[#FF4D94] to-[#FF7A18]" />
+          <div className="absolute left-3 top-0 bottom-0 w-px bg-gradient-to-b from-[#7C3AED] via-[#EC4899] to-[#A855F7]" />
           {WORKFLOW_STEPS.map((s, i) => {
             const Icon = Icons[s.icon] || Icons.Circle;
             return (

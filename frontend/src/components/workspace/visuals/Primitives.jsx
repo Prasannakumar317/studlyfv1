@@ -3,14 +3,14 @@ import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
 export const GRADIENTS = {
-  primary: "from-[#6C63FF] to-[#FF4D94]",
-  warm:    "from-[#FF4D94] to-[#FF7A18]",
-  cool:    "from-[#3FA9F5] to-[#6C63FF]",
-  growth:  "from-[#2ECC71] to-[#3FA9F5]",
-  energy:  "from-[#FFC145] to-[#FF7A18]",
+  primary: "from-[#7C3AED] to-[#EC4899]",
+  warm:    "from-[#EC4899] to-[#F59E0B]",
+  cool:    "from-[#6366F1] to-[#7C3AED]",
+  growth:  "from-[#22C55E] to-[#6366F1]",
+  energy:  "from-[#F59E0B] to-[#EC4899]",
 };
 
-export const COLORS = ["#6C63FF", "#FF4D94", "#FF7A18", "#3FA9F5", "#2ECC71", "#FFC145"];
+export const COLORS = ["#7C3AED", "#EC4899", "#A855F7", "#6366F1", "#22C55E", "#F59E0B"];
 
 export function KpiCard({ label, value, delta, icon: Icon, gradient = "primary", className = "" }) {
   return (
@@ -24,7 +24,7 @@ export function KpiCard({ label, value, delta, icon: Icon, gradient = "primary",
           <p className="text-[11px] font-bold uppercase tracking-widest text-gray-500">{label}</p>
           <p className="mt-1 font-display text-2xl md:text-3xl font-semibold tracking-tighter text-gray-900 truncate">{value}</p>
           {delta != null && (
-            <p className={`mt-1 text-xs font-semibold flex items-center gap-1 ${delta > 0 ? "text-[#2ECC71]" : delta < 0 ? "text-[#FF4D94]" : "text-gray-500"}`}>
+            <p className={`mt-1 text-xs font-semibold flex items-center gap-1 ${delta > 0 ? "text-[#22C55E]" : delta < 0 ? "text-[#EC4899]" : "text-gray-500"}`}>
               {delta > 0 ? <TrendingUp className="w-3 h-3" /> : delta < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
               {delta > 0 && "+"}{delta}{typeof delta === "number" ? "%" : ""}
             </p>
@@ -50,9 +50,9 @@ export function ScoreRing({ value, max = 10, label, size = 140, gradientId = "ri
       <svg width={size} height={size} className="-rotate-90">
         <defs>
           <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="1">
-            <stop offset="0%" stopColor="#6C63FF" />
-            <stop offset="50%" stopColor="#FF4D94" />
-            <stop offset="100%" stopColor="#FF7A18" />
+            <stop offset="0%" stopColor="#7C3AED" />
+            <stop offset="50%" stopColor="#A855F7" />
+            <stop offset="100%" stopColor="#EC4899" />
           </linearGradient>
         </defs>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#F1F1F4" strokeWidth="10" />
@@ -62,6 +62,7 @@ export function ScoreRing({ value, max = 10, label, size = 140, gradientId = "ri
           strokeDasharray={c} initial={{ strokeDashoffset: c }}
           animate={{ strokeDashoffset: c - dash }}
           transition={{ duration: 1.2, ease: "easeOut" }}
+          style={{ filter: "drop-shadow(0 4px 12px rgba(168, 85, 247, 0.25))" }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -75,11 +76,11 @@ export function ScoreRing({ value, max = 10, label, size = 140, gradientId = "ri
 
 export function InsightList({ title, items = [], tone = "primary", icon: Icon }) {
   const dot = {
-    primary: "bg-gradient-to-br from-[#6C63FF] to-[#FF4D94]",
-    warm:    "bg-gradient-to-br from-[#FF4D94] to-[#FF7A18]",
-    cool:    "bg-gradient-to-br from-[#3FA9F5] to-[#6C63FF]",
-    growth:  "bg-gradient-to-br from-[#2ECC71] to-[#3FA9F5]",
-    energy:  "bg-gradient-to-br from-[#FFC145] to-[#FF7A18]",
+    primary: "bg-gradient-to-br from-[#7C3AED] to-[#EC4899]",
+    warm:    "bg-gradient-to-br from-[#EC4899] to-[#A855F7]",
+    cool:    "bg-gradient-to-br from-[#6366F1] to-[#7C3AED]",
+    growth:  "bg-gradient-to-br from-[#22C55E] to-[#6366F1]",
+    energy:  "bg-gradient-to-br from-[#F59E0B] to-[#A855F7]",
   }[tone];
   return (
     <div className="rounded-[20px] bg-white border border-gray-100 p-5">

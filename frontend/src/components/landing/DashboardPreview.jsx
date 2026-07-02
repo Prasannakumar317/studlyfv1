@@ -39,11 +39,11 @@ export default function DashboardPreview() {
           {/* topbar */}
           <div className="flex items-center justify-between px-5 py-3 border-b border-gray-100 bg-white/80 backdrop-blur">
             <div className="flex items-center gap-2">
-              <div className="flex gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#FF4D94]" /><span className="w-2.5 h-2.5 rounded-full bg-[#FFC145]" /><span className="w-2.5 h-2.5 rounded-full bg-[#2ECC71]" /></div>
+              <div className="flex gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#EC4899]" /><span className="w-2.5 h-2.5 rounded-full bg-[#F59E0B]" /><span className="w-2.5 h-2.5 rounded-full bg-[#22C55E]" /></div>
               <span className="ml-3 text-xs font-semibold text-gray-500">studlyf.ai / lumen-labs</span>
             </div>
             <div className="hidden md:flex items-center gap-2 text-xs font-medium text-gray-600">
-              <Sparkles className="w-3.5 h-3.5 text-[#6C63FF]" /> 7 agents running
+              <Sparkles className="w-3.5 h-3.5 text-[#7C3AED]" /> 7 agents running
             </div>
           </div>
 
@@ -57,7 +57,7 @@ export default function DashboardPreview() {
                     it.active ? "bg-white shadow-sm text-gray-900 font-semibold border border-gray-100" : "text-gray-500 hover:text-gray-800"
                   }`}
                 >
-                  <it.icon className={`w-4 h-4 ${it.active ? "text-[#6C63FF]" : ""}`} />
+                  <it.icon className={`w-4 h-4 ${it.active ? "text-[#7C3AED]" : ""}`} />
                   {it.label}
                 </button>
               ))}
@@ -71,17 +71,17 @@ export default function DashboardPreview() {
                   <h3 className="font-display text-2xl font-semibold text-gray-900 mt-1">Lumen Labs — Q1 Growth Plan</h3>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
-                  <span className="px-2.5 py-1 rounded-full bg-[#2ECC71]/10 text-[#2ECC71] font-semibold">On track</span>
+                  <span className="px-2.5 py-1 rounded-full bg-[#22C55E]/10 text-[#22C55E] font-semibold">On track</span>
                   <span className="px-2.5 py-1 rounded-full bg-gray-100 text-gray-700 font-medium">Pro plan</span>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { label: "MRR", value: "$24.6k", trend: "+18%", color: "from-[#6C63FF] to-[#FF4D94]" },
-                  { label: "Pipeline", value: "$184k", trend: "+9%", color: "from-[#3FA9F5] to-[#6C63FF]" },
-                  { label: "VC Score", value: "8.4", trend: "+0.6", color: "from-[#FF7A18] to-[#FF4D94]" },
-                  { label: "Runway", value: "14 mo", trend: "stable", color: "from-[#2ECC71] to-[#3FA9F5]" },
+                  { label: "MRR", value: "$24.6k", trend: "+18%", color: "from-[#7C3AED] to-[#EC4899]" },
+                  { label: "Pipeline", value: "$184k", trend: "+9%", color: "from-[#6366F1] to-[#7C3AED]" },
+                  { label: "VC Score", value: "8.4", trend: "+0.6", color: "from-[#A855F7] to-[#EC4899]" },
+                  { label: "Runway", value: "14 mo", trend: "stable", color: "from-[#22C55E] to-[#6366F1]" },
                 ].map((k) => (
                   <div key={k.label} className="rounded-2xl border border-gray-100 p-4 bg-white">
                     <p className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">{k.label}</p>
@@ -100,8 +100,8 @@ export default function DashboardPreview() {
                 <svg viewBox="0 0 400 120" className="mt-3 w-full h-32">
                   <defs>
                     <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
-                      <stop offset="0%" stopColor="#6C63FF" stopOpacity="0.4" />
-                      <stop offset="100%" stopColor="#6C63FF" stopOpacity="0" />
+                      <stop offset="0%" stopColor="#7C3AED" stopOpacity="0.4" />
+                      <stop offset="100%" stopColor="#7C3AED" stopOpacity="0" />
                     </linearGradient>
                   </defs>
                   <motion.path
@@ -119,9 +119,9 @@ export default function DashboardPreview() {
                     transition={{ duration: 1.4 }}
                   />
                   <linearGradient id="g2" x1="0" x2="1" y1="0" y2="0">
-                    <stop offset="0%" stopColor="#6C63FF" />
-                    <stop offset="50%" stopColor="#FF4D94" />
-                    <stop offset="100%" stopColor="#FF7A18" />
+                    <stop offset="0%" stopColor="#7C3AED" />
+                    <stop offset="50%" stopColor="#EC4899" />
+                    <stop offset="100%" stopColor="#A855F7" />
                   </linearGradient>
                 </svg>
               </div>
@@ -132,9 +132,9 @@ export default function DashboardPreview() {
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500"><Bell className="w-3.5 h-3.5" /> Notifications</div>
               <div className="mt-3 space-y-2.5">
                 {[
-                  { c: "#6C63FF", t: "New competitor entered market" },
-                  { c: "#FF4D94", t: "Pitch deck v3 generated" },
-                  { c: "#2ECC71", t: "Investor Maya viewed your one-pager" },
+                  { c: "#7C3AED", t: "New competitor entered market" },
+                  { c: "#EC4899", t: "Pitch deck v3 generated" },
+                  { c: "#22C55E", t: "Investor Maya viewed your one-pager" },
                 ].map((n, i) => (
                   <div key={i} className="text-xs rounded-xl bg-white p-3 border border-gray-100 flex items-start gap-2">
                     <span className="mt-1 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: n.c }} />
@@ -144,7 +144,7 @@ export default function DashboardPreview() {
               </div>
 
               <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500"><Calendar className="w-3.5 h-3.5" /> Today</div>
-              <div className="mt-3 rounded-xl bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] p-3 text-white">
+              <div className="mt-3 rounded-xl bg-gradient-to-br from-[#7C3AED] to-[#EC4899] p-3 text-white">
                 <p className="text-[10px] uppercase tracking-wider opacity-80 font-bold">15:00 • Mentor call</p>
                 <p className="text-sm font-semibold mt-1">Prep brief ready <ChevronRight className="inline w-3.5 h-3.5" /></p>
               </div>
@@ -152,7 +152,7 @@ export default function DashboardPreview() {
               <div className="mt-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-500"><PieChart className="w-3.5 h-3.5" /> AI Tasks</div>
               <div className="mt-3 space-y-2 text-xs">
                 {["SWOT analysis", "Investor list × 50", "Email sequence (5)"].map((t) => (
-                  <div key={t} className="flex items-center gap-2"><Bot className="w-3.5 h-3.5 text-[#6C63FF]" /><span className="text-gray-700">{t}</span></div>
+                  <div key={t} className="flex items-center gap-2"><Bot className="w-3.5 h-3.5 text-[#7C3AED]" /><span className="text-gray-700">{t}</span></div>
                 ))}
               </div>
             </aside>

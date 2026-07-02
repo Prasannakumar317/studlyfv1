@@ -10,7 +10,7 @@ export default function ProjectPicker() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="inline-flex items-center gap-2 px-3.5 py-2 rounded-full bg-white border border-gray-200 hover:border-gray-300 text-sm font-semibold" data-testid="project-picker">
-          <FolderKanban className="w-4 h-4 text-[#6C63FF]" /> {current.name}
+          <FolderKanban className="w-4 h-4 text-[#7C3AED]" /> {current.name}
           <ChevronDown className="w-3.5 h-3.5 opacity-60" />
         </button>
       </DropdownMenuTrigger>
@@ -25,7 +25,7 @@ export default function ProjectPicker() {
             data-testid={`project-picker-${p.project_id}`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-gradient-to-br from-[#6C63FF] to-[#FF4D94]" />
+              <span className="w-2 h-2 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#EC4899]" />
               <div>
                 <p className="text-sm font-medium">{p.name}</p>
                 <p className="text-[11px] text-gray-500">{p.industry || "—"}</p>

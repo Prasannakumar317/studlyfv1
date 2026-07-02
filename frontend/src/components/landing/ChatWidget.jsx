@@ -35,7 +35,8 @@ export default function ChatWidget() {
       const res = await axios.post(`${API}/chat`, { message: msg, session_id: sessionId });
       setMessages((m) => [...m, { role: "assistant", text: res.data.reply || "..." }]);
     } catch (e) {
-      setMessages((m) => [...m, { role: "assistant", text: "Sorry, I hit a snag. Try again in a moment." }]);
+      const errorMsg = e.response?.data?.error || e.response?.data?.detail || e.message || "Sorry, I hit a snag. Try again in a moment.";
+      setMessages((m) => [...m, { role: "assistant", text: `Error: ${errorMsg}` }]);
     } finally {
       setLoading(false);
     }
@@ -67,7 +68,7 @@ export default function ChatWidget() {
           )}
         </AnimatePresence>
         {!open && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#2ECC71] ring-2 ring-white animate-pulse" />
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-[#22C55E] ring-2 ring-white animate-pulse" />
         )}
       </motion.button>
 
@@ -83,7 +84,7 @@ export default function ChatWidget() {
             data-testid="chat-panel"
           >
             {/* Header */}
-            <div className="px-5 py-4 bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white">
+            <div className="px-5 py-4 bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
                   <Bot className="w-5 h-5" />
@@ -91,7 +92,7 @@ export default function ChatWidget() {
                 <div>
                   <p className="font-display font-semibold leading-none">STUDLYF AI</p>
                   <p className="text-[11px] opacity-90 mt-1 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#2ECC71]" /> Online • powered by Gemini
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#22C55E]" /> Online • powered by Gemini
                   </p>
                 </div>
               </div>
@@ -108,7 +109,7 @@ export default function ChatWidget() {
                 >
                   <div className={`max-w-[85%] text-sm leading-relaxed px-3.5 py-2.5 rounded-2xl ${
                     m.role === "user"
-                      ? "bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white rounded-br-sm"
+                      ? "bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white rounded-br-sm"
                       : "bg-white border border-gray-100 text-gray-800 rounded-bl-sm"
                   }`}>
                     {m.text}
@@ -118,9 +119,9 @@ export default function ChatWidget() {
               {loading && (
                 <div className="flex justify-start">
                   <div className="bg-white border border-gray-100 rounded-2xl rounded-bl-sm px-3.5 py-3 flex items-center gap-1">
-                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#6C63FF]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8 }} />
-                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#FF4D94]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.15 }} />
-                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#FF7A18]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.3 }} />
+                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#7C3AED]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8 }} />
+                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#EC4899]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.15 }} />
+                    <motion.span className="w-1.5 h-1.5 rounded-full bg-[#A855F7]" animate={{ y: [0, -4, 0] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.3 }} />
                   </div>
                 </div>
               )}
@@ -133,7 +134,7 @@ export default function ChatWidget() {
                   <button
                     key={p}
                     onClick={() => send(p)}
-                    className="text-[11px] px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-[#6C63FF] hover:text-[#6C63FF] transition text-gray-700"
+                    className="text-[11px] px-3 py-1.5 rounded-full bg-white border border-gray-200 hover:border-[#7C3AED] hover:text-[#7C3AED] transition text-gray-700"
                     data-testid={`chat-starter-${p.slice(0, 10)}`}
                   >
                     <Sparkles className="w-3 h-3 inline mr-1" />{p}
@@ -152,7 +153,7 @@ export default function ChatWidget() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me anything..."
-                className="flex-1 px-4 py-2.5 rounded-full bg-white border border-gray-200 focus:border-[#6C63FF] focus:ring-2 focus:ring-[#6C63FF]/15 outline-none text-sm"
+                className="flex-1 px-4 py-2.5 rounded-full bg-white border border-gray-200 focus:border-[#7C3AED] focus:ring-2 focus:ring-[#7C3AED]/15 outline-none text-sm"
                 data-testid="chat-input"
               />
               <button

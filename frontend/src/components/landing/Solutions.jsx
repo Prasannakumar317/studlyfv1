@@ -8,7 +8,7 @@ export default function Solutions() {
   return (
     <section id="solutions" className="relative py-24 md:py-32 overflow-hidden">
       <div className="absolute -top-40 left-1/3 w-[600px] h-[600px] rounded-full blob"
-           style={{ background: "radial-gradient(circle, #FF4D94 0%, transparent 70%)", opacity: 0.18 }} />
+           style={{ background: "radial-gradient(circle, #EC4899 0%, transparent 70%)", opacity: 0.18 }} />
       <div className="max-w-[1400px] mx-auto px-5 md:px-8 lg:px-12 relative">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
@@ -58,14 +58,14 @@ export default function Solutions() {
                 <ul className="relative mt-5 space-y-2">
                   {s.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
-                      <Icons.Check className="w-4 h-4 text-[#2ECC71] mt-0.5 shrink-0" />
+                      <Icons.Check className="w-4 h-4 text-[#22C55E] mt-0.5 shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
 
                 <button
-                  className="relative mt-7 w-full rounded-full py-2.5 text-sm font-semibold text-gray-900 border border-gray-200 hover:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#6C63FF] hover:to-[#FF4D94] transition-all duration-300 flex items-center justify-center gap-1.5"
+                  className="relative mt-7 w-full rounded-full py-2.5 text-sm font-semibold text-gray-900 border border-gray-200 hover:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-[#7C3AED] hover:to-[#EC4899] transition-all duration-300 flex items-center justify-center gap-1.5"
                   data-testid={`solution-cta-${idx}`}
                 >
                   Learn more <Icons.ArrowRight className="w-4 h-4" />

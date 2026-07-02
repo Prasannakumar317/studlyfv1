@@ -28,7 +28,7 @@ export default function Pricing({ onSelect }) {
               className={`px-5 py-2 text-sm rounded-full font-semibold transition flex items-center gap-2 ${yearly ? "bg-white shadow text-gray-900" : "text-gray-500"}`}
               data-testid="pricing-yearly"
             >
-              Yearly <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-gradient-to-r from-[#6C63FF] to-[#FF4D94]">-20%</span>
+              Yearly <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white bg-gradient-to-r from-[#7C3AED] to-[#EC4899]">-20%</span>
             </button>
           </div>
         </div>
@@ -47,14 +47,14 @@ export default function Pricing({ onSelect }) {
                 transition={{ delay: i * 0.07 }}
                 className={`relative rounded-[24px] p-7 transition-all duration-300 ${
                   p.highlight
-                    ? "bg-gradient-to-br from-[#6C63FF] to-[#FF4D94] text-white shadow-[0_20px_60px_-15px_rgba(108,99,255,0.55)] -translate-y-2"
+                    ? "bg-gradient-to-br from-[#7C3AED] to-[#EC4899] text-white shadow-[0_20px_60px_-15px_rgba(108,99,255,0.55)] -translate-y-2"
                     : "bg-white border border-gray-100 hover:shadow-[0_20px_50px_rgba(0,0,0,0.07)]"
                 }`}
                 data-testid={`pricing-card-${p.name.toLowerCase()}`}
               >
                 {p.badge && (
                   <span className={`absolute -top-3 right-5 text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full ${
-                    p.highlight ? "bg-white text-[#FF4D94]" : "bg-gray-900 text-white"
+                    p.highlight ? "bg-white text-[#EC4899]" : "bg-gray-900 text-white"
                   }`}>{p.badge}</span>
                 )}
                 <p className={`text-sm font-semibold ${p.highlight ? "text-white/90" : "text-gray-500"}`}>{p.name}</p>
@@ -72,7 +72,7 @@ export default function Pricing({ onSelect }) {
                 <ul className="mt-6 space-y-2.5">
                   {p.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-sm">
-                      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${p.highlight ? "text-white" : "text-[#2ECC71]"}`} />
+                      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${p.highlight ? "text-white" : "text-[#22C55E]"}`} />
                       <span className={p.highlight ? "text-white/95" : "text-gray-700"}>{f}</span>
                     </li>
                   ))}

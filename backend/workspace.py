@@ -9,11 +9,11 @@ from fastapi import APIRouter, HTTPException, Cookie, Header
 from pydantic import BaseModel
 from typing import Optional, Literal
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage, TextDelta, StreamDone
-from schemas import KIND_LABELS, build_prompt
+from gemini_client import LlmChat, UserMessage, TextDelta, StreamDone, AiProviderError
+from schemas import KIND_LABELS, build_prompt, SCHEMAS
 
 logger = logging.getLogger(__name__)
-EMERGENT_LLM_KEY = os.environ.get("EMERGENT_LLM_KEY")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 
 class ProjectCreate(BaseModel):
@@ -59,9 +59,13 @@ def build_workspace_router(db, get_user_from_request):
     router = APIRouter(prefix="/api/workspace", tags=["workspace"])
 
     async def _require_user(session_token, authorization):
+        if not session_token and not authorization:
+            raise HTTPException(status_code=401, detail="Authentication failed: Session token or JWT Authorization header is missing.")
         user = await get_user_from_request(session_token, authorization)
         if not user:
-            raise HTTPException(status_code=401, detail="Not authenticated")
+            raise HTTPException(status_code=401, detail="Authentication failed: Invalid session or JWT token.")
+        if not user.get("user_id"):
+            raise HTTPException(status_code=401, detail="Authentication failed: User ID not found in token payload.")
         return user
 
     @router.get("/projects")
@@ -134,55 +138,152 @@ def build_workspace_router(db, get_user_from_request):
         session_token: Optional[str] = Cookie(default=None),
         authorization: Optional[str] = Header(default=None),
     ):
-        user = await _require_user(session_token, authorization)
-        project = await db.projects.find_one(
-            {"project_id": payload.project_id, "user_id": user["user_id"]}, {"_id": 0}
-        )
-        if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
-
-        prompt = build_prompt(payload.kind, project)
-        chat = LlmChat(
-            api_key=EMERGENT_LLM_KEY,
-            session_id=f"gen-{payload.project_id}-{payload.kind}-{uuid.uuid4().hex[:6]}",
-            system_message=(
-                "You are STUDLYF AI. ALWAYS reply with a single valid JSON object only. "
-                "No markdown, no code fences, no commentary."
-            ),
-        ).with_model("gemini", "gemini-3-flash-preview")
-
+        start_time = datetime.now(timezone.utc)
+        import traceback
+        
         try:
+            # Step 1: User authentication check
+            user = await _require_user(session_token, authorization)
+            print("[OK] User authenticated")
+            
+            # Step 2: Database query check
+            project = await db.projects.find_one(
+                {"project_id": payload.project_id, "user_id": user["user_id"]}, {"_id": 0}
+            )
+            if not project:
+                raise HTTPException(status_code=404, detail="Project not found")
+            print("[OK] Workspace loaded")
+            
+            # Step 3: Default any null required fields to avoid crashes
+            default_project = {
+                "name": project.get("name") or "My Startup",
+                "tagline": project.get("tagline") or "",
+                "industry": project.get("industry") or "",
+                "stage": project.get("stage") or "Idea",
+                "problem": project.get("problem") or "",
+                "solution": project.get("solution") or "",
+                "market": project.get("market") or "",
+                "competitors": project.get("competitors") or "",
+                "customer personas": project.get("customer personas") or "",
+                "strategy": project.get("strategy") or "",
+                "marketing": project.get("marketing") or "",
+                "funding": project.get("funding") or ""
+            }
+            print("[OK] Startup data loaded")
+            
+            # Step 4: Prompt generation
+            prompt = build_prompt(payload.kind, default_project)
+            
+            # Check prompt size limits
+            if len(prompt) > 24000:
+                logger.info("Prompt length is large. Summarizing workspace details context.")
+                schema = SCHEMAS[payload.kind]
+                prompt = (
+                    f"You are STUDLYF AI, an expert startup strategist generating data for an executive dashboard.\n\n"
+                    f"Project details (Summarized):\n"
+                    f"- Name: {default_project['name']}\n"
+                    f"- Tagline: {default_project['tagline']}\n"
+                    f"- Industry: {default_project['industry']}\n"
+                    f"- Stage: {default_project['stage']}\n"
+                    f"- Problem: {default_project['problem'][:1000]}\n"
+                    f"- Solution: {default_project['solution'][:1000]}\n\n"
+                    f"Task: Generate a {KIND_LABELS[payload.kind]} for this startup. Output a SINGLE JSON object. "
+                    f"No prose, no markdown fences, no commentary — just the JSON. "
+                    f"Match this exact schema:\n\n{schema}\n\n"
+                    f"Rules:\n"
+                    f"- Be specific. Return STRICT JSON only.\n"
+                )
+            print("[OK] Prompt generated")
+            
+            chat = LlmChat(
+                api_key=GEMINI_API_KEY,
+                session_id=f"gen-{payload.project_id}-{payload.kind}-{uuid.uuid4().hex[:6]}",
+                system_message=(
+                    "You are STUDLYF AI. ALWAYS reply with a single valid JSON object only. "
+                    "No markdown, no code fences, no commentary."
+                ),
+            ).with_model("gemini", "gemini-3-flash-preview")
+            
+            # Step 5: AI generation calls (with JSON parsing validation and automatic retry)
+            data = None
             full = ""
-            async for ev in chat.stream_message(UserMessage(text=prompt)):
-                if isinstance(ev, TextDelta):
-                    full += ev.content
-                elif isinstance(ev, StreamDone):
-                    break
+            last_error = None
+            print("[OK] AI request started")
+            
+            for attempt in range(3):
+                try:
+                    full = ""
+                    async for ev in chat.stream_message(UserMessage(text=prompt)):
+                        if isinstance(ev, TextDelta):
+                            full += ev.content
+                        elif isinstance(ev, StreamDone):
+                            break
+                    
+                    data = _parse_json_response(full)
+                    print("[OK] JSON parsed")
+                    last_error = None
+                    break  # success!
+                except json.JSONDecodeError as jde:
+                    logger.warning(f"JSON parse attempt {attempt + 1} failed for kind={payload.kind}: {jde}")
+                    last_error = jde
+                except Exception as ex:
+                    logger.warning(f"AI generation call attempt {attempt + 1} failed for kind={payload.kind}: {ex}")
+                    last_error = ex
+            
+            if last_error:
+                raise last_error
+                
+            print("[OK] AI response received")
+            
+            # Step 6: Insert document in database
+            gid = f"gen_{uuid.uuid4().hex[:10]}"
+            doc = {
+                "generation_id": gid,
+                "user_id": user["user_id"],
+                "project_id": payload.project_id,
+                "kind": payload.kind,
+                "label": KIND_LABELS[payload.kind],
+                "data": data,
+                "raw": full,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            await db.generations.insert_one(doc)
+            doc.pop("_id", None)
+            
+            print("[OK] Response sent")
+            return doc
+            
+        except AiProviderError as ape:
+            print("[ERROR] AI Generation failed at provider stage")
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "error": str(ape),
+                    "api_status": 502,
+                    "provider": ape.provider,
+                    "model": ape.model,
+                    "provider_status": ape.status_code,
+                    "response_time": f"{round((datetime.now(timezone.utc) - start_time).total_seconds(), 2)}s",
+                    "request_id": f"req_{uuid.uuid4().hex[:8]}",
+                    "raw_response": ape.raw_response
+                }
+            )
         except Exception as e:
-            logger.exception("Generation failed")
-            raise HTTPException(status_code=500, detail=f"Generation failed: {e}")
-
-        # Parse JSON output
-        try:
-            data = _parse_json_response(full)
-        except Exception as e:
-            logger.warning(f"Could not parse JSON for kind={payload.kind}: {e}\nRaw: {full[:400]}")
-            raise HTTPException(status_code=502, detail="AI returned invalid JSON. Try regenerating.")
-
-        gid = f"gen_{uuid.uuid4().hex[:10]}"
-        doc = {
-            "generation_id": gid,
-            "user_id": user["user_id"],
-            "project_id": payload.project_id,
-            "kind": payload.kind,
-            "label": KIND_LABELS[payload.kind],
-            "data": data,
-            "raw": full,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        await db.generations.insert_one(doc)
-        doc.pop("_id", None)
-        return doc
+            print("[ERROR] Generation failed in pipeline")
+            traceback.print_exc()
+            raise HTTPException(
+                status_code=502,
+                detail={
+                    "error": str(e),
+                    "api_status": getattr(e, "status_code", 502),
+                    "provider": "Unknown",
+                    "model": "Unknown",
+                    "provider_status": getattr(e, "status_code", 500) if hasattr(e, "status_code") else 500,
+                    "response_time": f"{round((datetime.now(timezone.utc) - start_time).total_seconds(), 2)}s",
+                    "request_id": f"req_{uuid.uuid4().hex[:8]}"
+                }
+            )
 
     @router.get("/generations")
     async def list_generations(
